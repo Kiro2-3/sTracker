@@ -57,3 +57,54 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+
+# 💰 Personal Finance Tracker
+
+A full-stack web application built with **Laravel 12** and **React (Inertia.js)**. This tool allows users to track their income and expenses, visualize spending habits via charts, and manage their financial history.
+
+## ✨ Features
+
+* **Dashboard Summary:** Real-time calculation of Total Income, Total Expenses, and Current Balance.
+* **Visual Analytics:** Dynamic Pie Chart showing expense distribution by category using Chart.js.
+* **Full CRUD Functionality:**
+    * **Create:** Add new transactions (Income/Expense).
+    * **Read:** View a detailed history table of all entries.
+    * **Update:** (Future implementation) Edit existing entries.
+    * **Delete:** Remove transactions with automatic UI updates.
+* **Authentication:** Secure login and registration powered by Laravel Breeze.
+
+## 🚀 Tech Stack
+
+* **Backend:** PHP 8.3, Laravel 12
+* **Frontend:** React, Tailwind CSS
+* **Bridge:** Inertia.js (Modern monolith approach)
+* **Database:** MySQL
+* **Charts:** Chart.js
+
+## 🛠️ Installation & Setup
+
+Install Dependencies:
+
+Bash
+composer install
+npm install
+Environment Setup:
+
+Copy .env.example to .env.
+
+Configure your DB_DATABASE, DB_USERNAME, and DB_PASSWORD.
+
+Run php artisan key:generate.
+
+Database Migration:
+
+Bash
+php artisan migrate
+Run the Application:
+
+Open one terminal: php artisan serve
+
+Open a second terminal: npm run dev
+
+Visit: http://localhost:8000
