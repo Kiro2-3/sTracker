@@ -66,7 +66,7 @@ A full-stack web application built with **Laravel 12** and **React (Inertia.js)*
 ## ✨ Features
 
 * **Dashboard Summary:** Real-time calculation of Total Income, Total Expenses, and Current Balance.
-* **Visual Analytics:** Dynamic Pie Chart showing expense distribution by category using Chart.js.
+* **Visual Analytics:** Dynamic chart showing income and expense breakdown by category using Recharts (modern React charting library). Displays a responsive bar graph with optional pie views.
 * **Full CRUD Functionality:**
     * **Create:** Add new transactions (Income/Expense).
     * **Read:** View a detailed history table of all entries.

@@ -1,11 +1,26 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, router, Link } from '@inertiajs/react';
-import { Pie } from 'react-chartjs-2';
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 
-ChartJS.register(ArcElement, Tooltip, Legend);
+// Recharts components for modern, responsive charts
+import {
+    ResponsiveContainer,
+    BarChart,
+    Bar,
+    PieChart,
+    Pie,
+    Cell,
+    XAxis,
+    YAxis,
+    Tooltip as ReTooltip,
+    Legend as ReLegend,
+} from 'recharts';
 
-export default function Dashboard({ auth, transactions, summary, chartData }) {
+// color palettes
+const incomeColor = '#22d399';
+const expenseColor = '#ef4444';
+const pieColors = ['#6366f1', '#ec4899', '#22d3ee', '#facc15', '#34d399', '#f87171'];
+
+export default function Dashboard({ auth, transactions, summary, categories, expenseTotals, incomeTotals }) {
     
     // Inertia Form Hook
     const { data, setData, post, processing, reset, errors } = useForm({
@@ -23,14 +38,18 @@ export default function Dashboard({ auth, transactions, summary, chartData }) {
         });
     };
 
-    const pieData = {
-        labels: chartData.map(item => item.category),
-        datasets: [{
-            data: chartData.map(item => item.total),
-            backgroundColor: ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'],
-        }]
-    };
+    // prepare dataset for Recharts bar chart. each entry is {category, income, expense}
+    const barChartData = categories.map((cat, idx) => ({
+        category: cat,
+        income: incomeTotals[idx] || 0,
+        expense: expenseTotals[idx] || 0,
+    }));
 
+    // prepare data for pie chart (e.g. expenses only, could easily extend)
+    const pieChartData = categories.map((cat, idx) => ({
+        name: cat,
+        value: expenseTotals[idx] || 0,
+    }));
     return (
         <AuthenticatedLayout user={auth.user}>
             <Head title="Dashboard" />
@@ -48,7 +67,7 @@ export default function Dashboard({ auth, transactions, summary, chartData }) {
                         <p className="text-2xl font-bold text-red-600">${summary.expense}</p>
                     </div>
                     <div className="bg-white dark:bg-gray-800 p-6 rounded shadow border-l-4 border-blue-500">
-                        <p className="text-gray-500 dark:text-gray-400">Balance</p>
+                        <p className="text-gray-500 dark:text-gray-400">Total Revenue</p>
                         <p className="text-2xl font-bold">${summary.balance}</p>
                     </div>
                 </div>
@@ -88,13 +107,24 @@ export default function Dashboard({ auth, transactions, summary, chartData }) {
                         </form>
                     </div>
 
-                    {/* 3. The Pie Chart */}
+                    {/* 3. Category Breakdown Chart */}
                     <div className="bg-white dark:bg-gray-800 p-6 rounded shadow flex flex-col items-center">
-                        <h3 className="font-bold mb-4 text-lg">Expense Breakdown</h3>
-                        {chartData.length > 0 ? (
-                            <div className="w-full max-w-xs"><Pie data={pieData} /></div>
+                        <h3 className="font-bold mb-4 text-lg">Category Breakdown</h3>
+                        {(categories && categories.length > 0) ? (
+                            <div className="w-full h-60">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <BarChart data={barChartData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                                        <XAxis dataKey="category" tick={{ fill: '#374151' }} />
+                                        <YAxis tick={{ fill: '#374151' }} />
+                                        <ReTooltip />
+                                        <ReLegend verticalAlign="bottom" />
+                                        <Bar dataKey="income" name="Income" fill={incomeColor} />
+                                        <Bar dataKey="expense" name="Expense" fill={expenseColor} />
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            </div>
                         ) : (
-                            <p className="text-gray-400 mt-10">Add an expense to see the chart</p>
+                            <p className="text-gray-400 mt-10">Add transactions to see the chart</p>
                         )}
                     </div>
                 </div>

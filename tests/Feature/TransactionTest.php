@@ -155,3 +155,27 @@ test('update fails with invalid transaction data', function () {
     // Assert validation fails and we have errors
     $response->assertSessionHasErrors(['description', 'amount', 'type']);
 });
+
+// New: verify dashboard provides correct category breakdown data
+test('dashboard returns correct summary and breakdown arrays', function () {
+    $user = User::factory()->create();
+
+    // create mixed transactions
+    Transaction::factory()->create([ 'user_id' => $user->id, 'type' => 'income', 'category' => 'Salary', 'amount' => 100 ]);
+    Transaction::factory()->create([ 'user_id' => $user->id, 'type' => 'expense', 'category' => 'Food', 'amount' => 30 ]);
+    Transaction::factory()->create([ 'user_id' => $user->id, 'type' => 'expense', 'category' => 'Food', 'amount' => 20 ]);
+
+    $response = $this->actingAs($user)->get(route('dashboard'));
+
+    $response->assertStatus(200);
+    $response->assertInertia(fn($page) =>
+        $page->has('summary.income')
+             ->where('summary.income', 100)
+             ->has('summary.expense')
+             ->where('summary.expense', 50)
+             ->has('summary.balance')
+             ->where('summary.balance', 50)
+             ->has('categories')
+             ->etc()
+    );
+});

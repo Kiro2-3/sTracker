@@ -25,11 +25,25 @@ class TransactionController extends Controller
         $totalIncome = $user->transactions()->where('type', 'income')->sum('amount');
         $totalExpense = $user->transactions()->where('type', 'expense')->sum('amount');
 
-        $chartData = $user->transactions()
+        // calculate totals per category for expenses and incomes separately
+        $expenseData = $user->transactions()
             ->where('type', 'expense')
             ->selectRaw('category, sum(amount) as total')
             ->groupBy('category')
-            ->get();
+            ->pluck('total', 'category');
+
+        $incomeData = $user->transactions()
+            ->where('type', 'income')
+            ->selectRaw('category, sum(amount) as total')
+            ->groupBy('category')
+            ->pluck('total', 'category');
+
+        // unified list of categories used by either type
+        $categories = $expenseData->keys()->merge($incomeData->keys())->unique()->values();
+
+        // arrays with totals aligned to categories index
+        $expenseTotals = $categories->map(fn($c) => $expenseData->get($c, 0));
+        $incomeTotals = $categories->map(fn($c) => $incomeData->get($c, 0));
 
         return Inertia::render('Dashboard', [
             'transactions' => $transactions,
@@ -38,7 +52,9 @@ class TransactionController extends Controller
                 'expense' => $totalExpense,
                 'balance' => $totalIncome - $totalExpense
             ],
-            'chartData' => $chartData
+            'categories' => $categories,
+            'expenseTotals' => $expenseTotals,
+            'incomeTotals' => $incomeTotals,
         ]);
     }
 
