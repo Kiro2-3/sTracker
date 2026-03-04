@@ -2,15 +2,11 @@ import { useEffect, useState } from 'react';
 
 export default function ThemeToggle() {
     const [theme, setTheme] = useState(() => {
-        // read from localStorage or default to system preference
+        // read from localStorage or default to light (no OS preference)
         if (typeof window === 'undefined') {
             return 'light';
         }
-        const stored = localStorage.getItem('theme');
-        if (stored === 'light' || stored === 'dark') {
-            return stored;
-        }
-        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        return localStorage.getItem('theme') || 'light';
     });
 
     useEffect(() => {
