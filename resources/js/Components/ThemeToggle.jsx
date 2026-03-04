@@ -28,7 +28,7 @@ export default function ThemeToggle() {
     return (
         <button
             onClick={toggle}
-            className="rounded-md p-2 hover:bg-gray-200 dark:hover:bg-gray-700"
+            className="btn btn-ghost btn-square"
             title="Toggle theme"
         >
             {theme === 'dark' ? (

@@ -69,10 +69,11 @@ A full-stack web application built with **Laravel 12** and **React (Inertia.js)*
 * **Visual Analytics:** Dynamic chart showing income and expense breakdown by category using Recharts (modern React charting library). Displays a responsive bar graph with optional pie views.
 * **Full CRUD Functionality:**
     * **Create:** Add new transactions (Income/Expense).
-    * **Read:** View a detailed history table of all entries.
-    * **Update:** (Future implementation) Edit existing entries.
+    * **Read:** View a detailed history table of all entries and filter by category.
+    * **Update:** Edit existing entries directly from the dashboard.
     * **Delete:** Remove transactions with automatic UI updates.
 * **Authentication:** Secure login and registration powered by Laravel Breeze.
+* **UI Framework:** Tailwind CSS enhanced with DaisyUI components for a clean, responsive look.
 
 ## 🚀 Tech Stack
 
@@ -80,7 +81,7 @@ A full-stack web application built with **Laravel 12** and **React (Inertia.js)*
 * **Frontend:** React, Tailwind CSS
 * **Bridge:** Inertia.js (Modern monolith approach)
 * **Database:** MySQL
-* **Charts:** Chart.js
+* **Charts:** Recharts (React charting) for dynamic dashboards
 
 ## 🛠️ Installation & Setup
 
@@ -99,12 +100,22 @@ Run php artisan key:generate.
 
 Database Migration:
 
-Bash
+```bash
 php artisan migrate
+```
+
 Run the Application:
 
-Open one terminal: php artisan serve
-
-Open a second terminal: npm run dev
+1. In one terminal:
+   ```bash
+   php artisan serve
+   ```
+2. In a second terminal (install front-end deps first):
+   ```bash
+   npm install
+   npm run dev
+   ```
 
 Visit: http://localhost:8000
+
+> 🔧 **Note:** Tailwind is configured with DaisyUI – if you add new components make sure to rebuild assets (`npm run dev` or `composer run dev`).
