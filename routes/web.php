@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\Profile\ProfileController;
+use App\Http\Controllers\Transaction\TransactionController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -21,8 +21,13 @@ Route::get('/dashboard', [TransactionController::class, 'index'])
     ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
-    // These routes will handle saving and deleting transactions later
+    // Transaction routes: store (create), show (display edit form), update (save changes), and delete
     Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store');
+    // Show the edit form for a specific transaction
+    Route::get('/transactions/{transaction}/edit', [TransactionController::class, 'show'])->name('transactions.edit');
+    // Update the transaction with new data
+    Route::put('/transactions/{transaction}', [TransactionController::class, 'update'])->name('transactions.update');
+    // Delete a transaction
     Route::delete('/transactions/{transaction}', [TransactionController::class, 'destroy'])->name('transactions.destroy');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

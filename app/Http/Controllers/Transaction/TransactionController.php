@@ -1,15 +1,21 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Transaction;
 
+use App\Http\Controllers\Controller;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * TransactionController handles all transaction-related operations
+ * including listing, creating, editing, and deleting transactions.
+ * This controller manages the income/expense tracking functionality.
+ */
 class TransactionController extends Controller
 {
-    // 1. Show the Dashboard
+    // 1. Show the Dashboard with all transactions and summary
     public function index()
     {
         $user = Auth::user();
