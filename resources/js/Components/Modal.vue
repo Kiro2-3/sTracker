@@ -1,10 +1,9 @@
 <template>
-  <Transition name="modal-fade">
+  <TransitionRoot :show="show" as="template">
     <Dialog
-      v-if="show"
       as="div"
       id="modal"
-      class="fixed inset-0 z-50 flex transform items-center overflow-y-auto px-4 py-6 transition-all sm:px-0"
+      class="fixed inset-0 z-50 flex min-h-screen items-center justify-center overflow-y-auto px-4 py-6 transition-all sm:px-0"
       @close="close"
     >
       <TransitionChild
@@ -30,11 +29,11 @@
         </DialogPanel>
       </TransitionChild>
     </Dialog>
-  </Transition>
+  </TransitionRoot>
 </template>
 
 <script setup>
-import { Dialog, DialogPanel, Transition, TransitionChild } from '@headlessui/vue';
+import { Dialog, DialogPanel, TransitionRoot, TransitionChild } from '@headlessui/vue';
 import { computed } from 'vue';
 const props = defineProps({
   show: Boolean,

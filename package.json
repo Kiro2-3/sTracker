@@ -25,6 +25,7 @@
     },
     "dependencies": {
         "22": "^0.0.0",
+        "@headlessui/vue": "^1.7.23",
         "@inertiajs/vue3": "^2.3.17",
         "chart.js": "^4.5.1",
         "daisyui": "^2.52.0",

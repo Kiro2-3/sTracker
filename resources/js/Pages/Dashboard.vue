@@ -6,6 +6,10 @@
     <div class="min-h-screen w-full flex flex-col md:flex-row bg-gray-50 text-gray-900">
       <!-- Sidebar menu -->
       <aside class="w-full md:w-56 flex md:flex-col flex-row gap-2 md:gap-4 items-stretch min-h-[4rem] md:min-h-[32rem] justify-start bg-white border-b md:border-b-0 md:border-r border-gray-200 p-2 md:p-4 sticky top-0 z-20">
+        <div class="flex items-center md:mb-6 mb-2">
+          <img src="/public/images/stracker-logo.png" alt="Stracker Logo" class="h-10 w-auto mr-2" />
+          <span class="font-extrabold text-xl text-blue-700 tracking-tight">Stracker</span>
+        </div>
         <button
           :class="['btn btn-outline', tab === 'dashboard' ? 'btn-primary text-white' : '']"
           @click="tab = 'dashboard'"
@@ -24,14 +28,12 @@
         >
           Add Transaction
         </button>
-        <form method="POST" :action="route('logout')" class="md:mt-auto">
-          <button
-            type="submit"
-            class="btn btn-error text-white font-bold hover:bg-red-700 transition-colors duration-150"
-          >
-            Logout
-          </button>
-        </form>
+        <button
+          @click="logout"
+          class="btn btn-error text-white font-bold hover:bg-red-700 transition-colors duration-150 md:mt-auto"
+        >
+          Logout
+        </button>
       </aside>
       <!-- Main content -->
       <main class="flex-1 space-y-8 px-2 sm:px-4 md:px-8 py-4 md:py-8 w-full">
@@ -207,14 +209,19 @@
         </template>
     </main>
   </div>
+    <AddTransaction v-if="showAddTransaction" :categories="categories" @close="showAddTransaction = false" />
   </AuthenticatedLayout>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import AddTransaction from './AddTransaction.vue';
-const showAddTransaction = ref(false);
-  <AddTransaction v-if="showAddTransaction" :categories="categories" @close="showAddTransaction = false" />
+function logout() {
+  router.post(route('logout'), {}, {
+    onSuccess: () => {
+      router.visit(route('login'));
+    }
+  });
+}
+
 import { ref, computed } from 'vue';
 import { Head, Link, useForm, router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
@@ -222,6 +229,9 @@ import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import LineChart from '@/Components/LineChart.vue';
 import PieChart from '@/Components/PieChart.vue';
+import AddTransaction from './AddTransaction.vue';
+
+const showAddTransaction = ref(false);
 
 const props = defineProps({
   auth: Object,
