@@ -173,8 +173,8 @@
                     </td>
                     <td class="text-center">
                       <div class="flex gap-2 justify-center">
-                        <Link
-                          :href="route('transactions.edit', t.id)"
+                        <button
+                          @click="openEditTransaction(t)"
                           class="btn btn-ghost btn-sm btn-square"
                           title="Edit Transaction"
                         >
@@ -182,7 +182,7 @@
                           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                           </svg>
-                        </Link>
+                        </button>
                         <button
                           @click="deleteTransaction(t.id)"
                           class="btn btn-ghost btn-sm btn-square text-error"
@@ -210,10 +210,17 @@
     </main>
   </div>
     <AddTransaction v-if="showAddTransaction" :categories="categories" @close="showAddTransaction = false" />
+    <EditTransaction v-if="editTransaction" :transaction="editTransaction" :categories="categories" @close="editTransaction = null" />
   </AuthenticatedLayout>
 </template>
 
 <script setup>
+
+import { ref, computed, defineProps } from 'vue';
+import { router } from '@inertiajs/vue3';
+import EditTransaction from './EditTransaction.vue';
+import AddTransaction from './AddTransaction.vue';
+
 function logout() {
   router.post(route('logout'), {}, {
     onSuccess: () => {
@@ -222,16 +229,12 @@ function logout() {
   });
 }
 
-import { ref, computed } from 'vue';
-import { Head, Link, useForm, router } from '@inertiajs/vue3';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import LineChart from '@/Components/LineChart.vue';
-import PieChart from '@/Components/PieChart.vue';
-import AddTransaction from './AddTransaction.vue';
-
 const showAddTransaction = ref(false);
+const editTransaction = ref(null);
+
+function openEditTransaction(transaction) {
+  editTransaction.value = { ...transaction };
+}
 
 const props = defineProps({
   auth: Object,
@@ -284,6 +287,7 @@ const lineData = computed(() => {
 });
 
 function applyFilters() {
+  console.log('applyFilters fired', filters.value);
   router.get(route('dashboard'), { ...filters.value });
 }
 function clearFilters() {
