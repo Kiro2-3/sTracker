@@ -60,21 +60,6 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
 
 
-# 📝 Changelog
-
-## March 7, 2026
-
-- **TransactionController:** Changed transaction listing to use pagination (`paginate(10)`) instead of `get()` for improved performance and UI consistency.
-- **Login Page:** Redesigned with minimalist style, animated background quote, and improved logo layout. Added new animation components for login quotes.
-- **Dashboard:** Refactored transaction table to use paginated data from backend, removed manual frontend pagination logic, and updated logout handling.
-- **New Components:** Added animated quote React components:
-   - `LoginQuoteFalling.jsx`
-   - `LoginQuoteInfiniteScroll.jsx`
-   - `LoginQuoteInfiniteSkewed.jsx`
-   - `LoginQuoteInfiniteSkewed30.jsx`
-   - `LoginQuoteInfiniteSkewed30Down.jsx`
-
----
 
 
 
