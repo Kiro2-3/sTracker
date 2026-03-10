@@ -1,3 +1,5 @@
+# Ignore Claude skills directory
+.claude/skills/
 # Ignore Claude config/documentation
 CLAUDE.md
 *.log
