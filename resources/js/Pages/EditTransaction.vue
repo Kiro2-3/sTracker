@@ -1,14 +1,14 @@
 <template>
   <Modal :show="true" maxWidth="md" :onClose="closeModal">
-    <div class="w-full max-w-lg p-6 bg-white dark:bg-gray-800 rounded-xl shadow-xl">
-      <div class="mb-6 flex items-center justify-between">
-        <h2 class="font-bold text-2xl text-blue-600 dark:text-blue-300">Edit Transaction</h2>
-        <button type="button" class="btn btn-sm btn-circle btn-ghost" @click="closeModal" aria-label="Close">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+    <div class="w-full max-w-lg p-8 bg-white dark:bg-gray-900 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-800 transition-colors">
+      <div class="mb-8 flex items-center justify-between">
+        <h2 class="font-semibold text-2xl text-gray-800 dark:text-gray-100 tracking-tight">Edit Transaction</h2>
+        <button type="button" class="rounded-full p-2 hover:bg-gray-100 dark:hover:bg-gray-800 transition" @click="closeModal" aria-label="Close">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400 hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
       </div>
       <form @submit.prevent="submit" class="space-y-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div class="form-control">
             <InputLabel value="Description" htmlFor="description" />
             <TextInput
@@ -37,7 +37,7 @@
             <InputLabel value="Type" htmlFor="type" />
             <select
               id="type"
-              class="select select-bordered w-full text-black bg-white"
+              class="select select-bordered w-full text-gray-800 bg-gray-50 border border-gray-300 focus:border-blue-400 focus:ring-blue-400 dark:bg-gray-800 dark:text-white dark:border-gray-700"
               v-model="form.type"
               disabled
             >
@@ -50,7 +50,7 @@
             <InputLabel value="Category" htmlFor="category" />
             <select
               id="category"
-              class="select select-bordered w-full text-black bg-white"
+              class="select select-bordered w-full text-gray-800 bg-gray-50 border border-gray-300 focus:border-blue-400 focus:ring-blue-400 dark:bg-gray-800 dark:text-white dark:border-gray-700"
               v-model="form.category"
               :disabled="form.type === 'income'"
             >
@@ -67,15 +67,15 @@
           <input
             id="entry_date"
             type="date"
-            class="input input-bordered w-full text-black bg-white"
+            class="input input-bordered w-full text-gray-800 bg-gray-50 border border-gray-300 focus:border-blue-400 focus:ring-blue-400 dark:bg-gray-800 dark:text-white dark:border-gray-700"
             v-model="form.entry_date"
           />
           <InputError v-if="errors.entry_date" :message="errors.entry_date" />
         </div>
-        <div class="flex justify-end">
+        <div class="flex justify-end mt-8">
           <PrimaryButton
             type="submit"
-            class="w-full md:w-1/3 text-base"
+            class="w-full md:w-1/3 text-base bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-sm border-none transition dark:bg-blue-500 dark:hover:bg-blue-600"
             :disabled="processing"
           >
             Update Transaction
@@ -136,4 +136,5 @@ function closeModal() {
 </script>
 
 <style scoped>
+
 </style>
