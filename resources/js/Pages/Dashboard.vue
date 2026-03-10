@@ -101,15 +101,15 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 w-full">
               <div class="bg-white rounded-2xl shadow p-8 flex flex-col items-center border border-gray-100">
                 <div class="text-gray-500 text-base font-medium mb-2">Total Income</div>
-                <div class="text-blue-600 text-3xl font-bold tracking-tight">₱{{ summary.income }}</div>
+                <div class="text-blue-600 text-3xl font-bold tracking-tight">₱{{ summaryForDisplay.income }}</div>
               </div>
               <div class="bg-white rounded-2xl shadow p-8 flex flex-col items-center border border-gray-100">
                 <div class="text-gray-500 text-base font-medium mb-2">Total Expenses</div>
-                <div class="text-red-600 text-3xl font-bold tracking-tight">₱{{ summary.expense }}</div>
+                <div class="text-red-600 text-3xl font-bold tracking-tight">₱{{ summaryForDisplay.expense }}</div>
               </div>
               <div class="bg-white rounded-2xl shadow p-8 flex flex-col items-center border border-gray-100">
                 <div class="text-gray-500 text-base font-medium mb-2">Total Revenue</div>
-                <div class="text-green-600 text-3xl font-bold tracking-tight">₱{{ summary.balance }}</div>
+                <div class="text-green-600 text-3xl font-bold tracking-tight">₱{{ summaryForDisplay.balance }}</div>
               </div>
             </div>
 
@@ -480,6 +480,27 @@ const filteredPieChartData = computed(() => {
   // Revenue can be negative, but show it for completeness
   data.push({ label: 'Total Revenue', value: totalRevenue });
   return data;
+});
+
+const summaryForDisplay = computed(() => {
+  let income = 0;
+  let expense = 0;
+
+  filteredChartTransactions.value.forEach((t) => {
+    if (t.type === 'income') {
+      income += Number(t.amount);
+    } else if (t.type === 'expense') {
+      expense += Number(t.amount);
+    }
+  });
+
+  const balance = income - expense;
+
+  return {
+    income: income.toFixed(2),
+    expense: expense.toFixed(2),
+    balance: balance.toFixed(2),
+  };
 });
 
 
