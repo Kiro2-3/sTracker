@@ -2,22 +2,37 @@
   <Head title="Log in" />
   <div class="login-bg">
     <div class="login-inspiration-container">
-      <!-- Left: Login Form -->
       <div class="login-inspiration-form">
         <div class="login-inspiration-header">
-          <img :src="logoUrl" alt="sTracker Logo" class="login-inspiration-logo" />
-          <span class="login-inspiration-brand">sTracker</span>
-          <span class="login-inspiration-register">
-            Don't have an account?
-            <Link :href="route('register')" class="login-inspiration-register-link">Register</Link>
-          </span>
+          <div class="login-inspiration-branding">
+            <img :src="logoUrl" alt="sTracker Logo" class="login-inspiration-logo" />
+            <div>
+              <div class="login-inspiration-brand">sTracker</div>
+              <p class="login-inspiration-brand-copy">Track income, expenses, and trends in one place.</p>
+            </div>
+          </div>
+          <div class="login-inspiration-header-actions">
+            <span class="login-inspiration-register">
+              Don't have an account?
+              <Link :href="route('register')" class="login-inspiration-register-link">Register</Link>
+            </span>
+          </div>
         </div>
         <div class="login-inspiration-card">
           <div class="login-inspiration-card-header">
-            <div class="login-inspiration-icon">
-              <svg width="48" height="48" fill="none" viewBox="0 0 48 48"><rect width="48" height="48" rx="12" fill="#FFD700"/><path d="M24 24a6 6 0 100-12 6 6 0 000 12zM24 27c-5.33 0-16 2.67-16 8v3a1 1 0 001 1h30a1 1 0 001-1v-3c0-5.33-10.67-8-16-8z" fill="#7c3aed"/></svg>
+            <span class="login-inspiration-eyebrow">Welcome back</span>
+            <div class="login-inspiration-title">Sign in to your finance workspace</div>
+            <p class="login-inspiration-description">
+              Access your transactions, recent activity, and visual reports with one secure login.
+            </p>
+            <div class="login-inspiration-chip-row">
+              <span class="login-inspiration-chip">Secure login</span>
+              <span class="login-inspiration-chip">Real-time overview</span>
+              <span class="login-inspiration-chip">Fast access</span>
             </div>
-            <div class="login-inspiration-title">Log in to your account</div>
+          </div>
+          <div v-if="status" class="login-inspiration-status">
+            {{ status }}
           </div>
           <form @submit.prevent="submit" class="login-inspiration-form-fields">
             <div class="login-inspiration-inputs">
@@ -51,6 +66,9 @@
                 <InputError :message="form.errors.password" class="mt-1" />
               </div>
             </div>
+            <div class="login-inspiration-helper-box">
+              <strong>Quick tip:</strong> Use the email and password from your registered account to continue where you left off.
+            </div>
             <div class="login-inspiration-actions">
               <div class="login-checkbox-row login-inspiration-checkbox-row">
                 <Checkbox
@@ -68,15 +86,47 @@
               </PrimaryButton>
             </div>
           </form>
+          <div class="login-inspiration-support-row">
+            <span class="login-inspiration-support-text">Simple, secure, and designed for daily finance tracking.</span>
+          </div>
         </div>
         <div class="login-inspiration-footer">© 2026 sTracker.</div>
       </div>
-      <!-- Right: Dashboard Preview & Marketing -->
+
       <div class="login-inspiration-preview">
+        <div class="login-inspiration-preview-glow login-inspiration-preview-glow-one"></div>
+        <div class="login-inspiration-preview-glow login-inspiration-preview-glow-two"></div>
         <div class="login-inspiration-preview-content">
-          <span class="login-inspiration-badge">Smart Spend Tracking</span>
-          <div class="login-inspiration-preview-title">Your go-to finance dashboard</div>
-          
+  
+        
+          <p class="login-inspiration-preview-copy">
+            Monitor balances, review transaction history, and spot income versus expense trends from a clean dashboard.
+          </p>
+
+          <div class="login-preview-stat-grid">
+            <div class="login-preview-stat-card">
+              <span class="login-preview-stat-label">Total Income</span>
+              <strong class="login-preview-stat-value text-income">₱620,544.01</strong>
+            </div>
+            <div class="login-preview-stat-card">
+              <span class="login-preview-stat-label">Total Expenses</span>
+              <strong class="login-preview-stat-value text-expense">₱81,978.98</strong>
+            </div>
+            <div class="login-preview-stat-card login-preview-stat-card-wide">
+              <span class="login-preview-stat-label">Total Revenue</span>
+              <strong class="login-preview-stat-value text-revenue">₱538,565.03</strong>
+            </div>
+          </div>
+
+          <div class="login-inspiration-dashboard-frame">
+            <img
+              :src="dashboardPreviewUrl"
+              alt="sTracker dashboard preview"
+              class="login-inspiration-preview-img"
+            />
+          </div>
+
+
         </div>
       </div>
     </div>
@@ -84,14 +134,14 @@
 </template>
 
 <script setup>
+import dashboardPreviewUrl from '@/../../public/images/dashboard-preview.png';
 import logoUrl from '@/../../public/images/stracker-logo.png';
 import Checkbox from '@/Components/Checkbox.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
-import { Head, Link, useForm, router } from '@inertiajs/vue3';
-import LoginQuoteInfiniteSkewed30Down from './LoginQuoteInfiniteSkewed30Down.vue';
+import { Head, Link, useForm } from '@inertiajs/vue3';
 
 const props = defineProps({
   status: String,
@@ -105,9 +155,6 @@ const form = useForm({
 });
 
 function submit() {
-  // Log plain form data for debugging
-  console.log('Submitting login form data:', { email: form.email, password: form.password, remember: form.remember });
-  // Use explicit POST and URL to avoid route helper issues
   form.post('/login', {
     onFinish: () => form.reset('password'),
   });

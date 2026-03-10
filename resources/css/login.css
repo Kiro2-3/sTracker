@@ -22,12 +22,13 @@
 .login-inspiration-container {
   display: flex;
   flex-direction: row;
-  width: 900px;
-  max-width: 150vw;
+  width: 100%;
+  max-width: 1000px;
   min-height: 600px;
   background: #fff;
   border-radius: 2rem;
-  box-shadow: 0 8px 40px #7c3aed22;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 24px 80px rgba(37, 99, 235, 0.16);
   overflow: hidden;
   margin: 40px auto;
 }
@@ -43,61 +44,141 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 1.25rem;
   margin-bottom: 2rem;
+}
+.login-inspiration-header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+.login-inspiration-branding {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
 }
 .login-inspiration-logo {
   width: 40px;
   height: 40px;
   border-radius: 12px;
-  margin-right: 0.75rem;
 }
 .login-inspiration-brand {
   font-size: 1.25rem;
   font-weight: 700;
   color: #22223b;
-  margin-right: auto;
+}
+.login-inspiration-brand-copy {
+  margin: 0.2rem 0 0;
+  color: #64748b;
+  font-size: 0.92rem;
+  line-height: 1.4;
 }
 .login-inspiration-register {
   font-size: 0.98rem;
   color: #888;
+  text-align: right;
 }
 .login-inspiration-register-link {
-  color: #ffb300;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.25rem;
+  padding: 0.5rem 0.95rem;
+  border-radius: 999px;
+  background: #eff6ff;
+  color: #2563eb;
   font-weight: 600;
   margin-left: 0.5rem;
   text-decoration: none;
+  transition: all 0.2s ease;
 }
 .login-inspiration-register-link:hover {
-  text-decoration: underline;
+  background: #dbeafe;
 }
 .login-inspiration-card {
   background: #fff;
   border-radius: 1.5rem;
-  box-shadow: 0 8px 32px #7c3aed22;
-  border: 2.5px solid #e5e7eb;
+  box-shadow: 0 18px 50px rgba(148, 163, 184, 0.18);
+  border: 1px solid #e5e7eb;
   padding: 3rem 2.5rem 2.5rem 2.5rem;
   margin-bottom: 2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-width: 500px;
-  max-width: 800px;
   width: 100%;
+  max-width: 480px;
 }
 .login-inspiration-icon {
   margin-bottom: 1.5rem;
 }
 .login-inspiration-title {
-  font-size: 1.35rem;
+  font-size: 1.75rem;
   font-weight: 700;
   color: #22223b;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.75rem;
+  text-align: center;
+}
+.login-inspiration-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.login-inspiration-description {
+  margin: 0;
+  color: #64748b;
+  text-align: center;
+  line-height: 1.6;
+}
+.login-inspiration-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+.login-inspiration-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+.login-inspiration-status {
+  width: 100%;
+  margin-bottom: 1rem;
+  padding: 0.875rem 1rem;
+  border-radius: 0.9rem;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1d4ed8;
+  font-size: 0.95rem;
 }
 .login-inspiration-form-fields {
   width: 100%;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+}
+.login-inspiration-helper-box {
+  padding: 0.9rem 1rem;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);
+  border: 1px solid #dbeafe;
+  color: #334155;
+  font-size: 0.92rem;
+  line-height: 1.55;
 }
 .login-inspiration-checkbox-row {
   display: flex;
@@ -117,22 +198,38 @@
 .login-inspiration-btn {
   width: 100%;
   margin-top: 1.25rem;
-  background: linear-gradient(90deg, #7c3aed 60%, #FFD700 100%);
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 50%, #0ea5e9 100%);
   color: #fff;
   font-weight: 700;
   font-size: 1.1rem;
   border-radius: 0.75rem;
-  box-shadow: 0 2px 8px #7c3aed22;
+  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.25);
+}
+.login-inspiration-btn:hover {
+  transform: translateY(-1px);
+}
+.login-inspiration-support-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+.login-inspiration-support-text {
+  color: #64748b;
+  font-size: 0.92rem;
+  text-align: center;
 }
 .login-inspiration-footer {
   margin-top: 1.5rem;
-  color: #bbb;
+  color: #94a3b8;
   font-size: 0.95rem;
   text-align: left;
 }
 .login-inspiration-preview {
   flex: 1 1 0;
-  background: #18181b;
+  background:
+    radial-gradient(circle at top left, rgba(96, 165, 250, 0.32), transparent 35%),
+    radial-gradient(circle at bottom right, rgba(59, 130, 246, 0.25), transparent 32%),
+    linear-gradient(160deg, #0f172a 0%, #172554 40%, #1d4ed8 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -142,30 +239,133 @@
 }
 .login-inspiration-preview-content {
   width: 100%;
-  max-width: 340px;
+  max-width: 520px;
   text-align: left;
+  position: relative;
+  z-index: 1;
 }
 .login-inspiration-badge {
   display: inline-block;
-  background: #ffb300;
-  color: #22223b;
+  background: rgba(255, 255, 255, 0.16);
+  color: #dbeafe;
   font-size: 0.92rem;
   font-weight: 700;
   border-radius: 0.75rem;
   padding: 0.25rem 0.9rem;
   margin-bottom: 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
 }
 .login-inspiration-preview-title {
   color: #fff;
-  font-size: 1.45rem;
+  font-size: 2rem;
   font-weight: 700;
-  margin-bottom: 2rem;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+}
+.login-inspiration-preview-copy {
+  margin: 0 0 1.5rem;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 1rem;
+  line-height: 1.7;
+}
+.login-preview-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+.login-preview-stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 1rem 1.1rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(14px);
+}
+.login-preview-stat-card-wide {
+  grid-column: span 2;
+}
+.login-preview-stat-label {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.login-preview-stat-value {
+  font-size: 1.35rem;
+  font-weight: 800;
+}
+.text-income {
+  color: #93c5fd;
+}
+.text-expense {
+  color: #fca5a5;
+}
+.text-revenue {
+  color: #86efac;
+}
+.login-inspiration-dashboard-frame {
+  position: relative;
+  padding: 0.85rem;
+  border-radius: 1.5rem;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.35);
+}
+.login-inspiration-feature-grid {
+  margin-top: 1.25rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  display: grid;
+  gap: 0.85rem;
+}
+.login-inspiration-feature-card {
+  padding: 1rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(14px);
+}
+.login-inspiration-feature-title {
+  display: block;
+  margin-bottom: 0.45rem;
+  color: #ffffff;
+  font-size: 0.96rem;
+  font-weight: 700;
+}
+.login-inspiration-feature-copy {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+.login-inspiration-preview-glow {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(55px);
+  opacity: 0.65;
+}
+.login-inspiration-preview-glow-one {
+  top: 3rem;
+  left: 2rem;
+  width: 12rem;
+  height: 12rem;
+  background: rgba(125, 211, 252, 0.35);
+}
+.login-inspiration-preview-glow-two {
+  right: 3rem;
+  bottom: 4rem;
+  width: 14rem;
+  height: 14rem;
+  background: rgba(59, 130, 246, 0.35);
 }
 .login-inspiration-preview-img {
   width: 100%;
-  border-radius: 1.25rem;
-  box-shadow: 0 4px 32px #0008;
-  margin-top: 1.5rem;
+  display: block;
+  border-radius: 1rem;
+  box-shadow: 0 20px 48px rgba(15, 23, 42, 0.28);
 }
 /* Flex container for left-right layout */
 .login-flex-container {
@@ -209,13 +409,73 @@
 
 .login-bg {
   min-height: 100vh;
-  background: #fff;
+  background: linear-gradient(135deg, #eef2ff 0%, #e0f2fe 35%, #fef9c3 100%);
   padding: 3rem 1rem;
 }
 
 
 .dark .login-bg {
   background: linear-gradient(135deg, #18181b 0%, #312e81 50%, #0ea5e9 100%);
+}
+
+.dark .login-inspiration-container {
+  background: #0f172a;
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.45);
+}
+
+.dark .login-inspiration-form {
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.96) 0%, rgba(30, 41, 59, 0.96) 100%);
+}
+
+.dark .login-inspiration-brand,
+.dark .login-inspiration-title {
+  color: #f8fafc;
+}
+
+.dark .login-inspiration-brand-copy,
+.dark .login-inspiration-description,
+.dark .login-inspiration-register,
+.dark .login-inspiration-footer,
+.dark .login-inspiration-support-text {
+  color: #cbd5e1;
+}
+
+.dark .login-inspiration-card {
+  background: rgba(15, 23, 42, 0.86);
+  border-color: rgba(96, 165, 250, 0.25);
+  box-shadow: 0 20px 45px rgba(2, 6, 23, 0.4);
+}
+
+.dark .login-inspiration-eyebrow {
+  background: rgba(30, 64, 175, 0.35);
+  color: #bfdbfe;
+}
+
+.dark .login-inspiration-chip {
+  background: rgba(30, 41, 59, 0.95);
+  border-color: rgba(96, 165, 250, 0.18);
+  color: #e2e8f0;
+}
+
+.dark .login-inspiration-status {
+  background: rgba(30, 64, 175, 0.18);
+  border-color: rgba(147, 197, 253, 0.25);
+  color: #bfdbfe;
+}
+
+.dark .login-inspiration-helper-box {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.96) 0%, rgba(30, 41, 59, 0.96) 100%);
+  border-color: rgba(96, 165, 250, 0.2);
+  color: #e2e8f0;
+}
+
+.dark .login-inspiration-register-link {
+  background: rgba(30, 64, 175, 0.3);
+  color: #dbeafe;
+}
+
+.dark .login-inspiration-register-link:hover {
+  background: rgba(59, 130, 246, 0.35);
 }
 
 .login-container {
@@ -257,6 +517,80 @@
   background: rgba(24,24,27,0.95);
   border: 1px solid rgba(59,130,246,0.2);
   box-shadow: 0 8px 32px rgba(59,130,246,0.10);
+}
+
+@media (max-width: 900px) {
+  .login-inspiration-container {
+    flex-direction: column;
+    max-width: 600px;
+    margin: 24px auto;
+  }
+
+  .login-inspiration-form {
+    padding: 2rem 1.5rem 1.5rem 1.5rem;
+  }
+
+  .login-inspiration-card {
+    max-width: 100%;
+  }
+
+  .login-inspiration-preview {
+    min-width: 100%;
+    padding: 2rem 1.5rem 2.5rem 1.5rem;
+  }
+
+  .login-inspiration-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .login-inspiration-register {
+    text-align: left;
+  }
+
+  .login-inspiration-preview-content {
+    max-width: 100%;
+  }
+
+  .login-inspiration-feature-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .login-bg {
+    padding: 1.25rem 0.75rem;
+  }
+
+  .login-inspiration-container {
+    border-radius: 1.4rem;
+  }
+
+  .login-inspiration-form {
+    padding: 1.5rem 1rem 1rem;
+  }
+
+  .login-inspiration-card {
+    padding: 2rem 1.25rem 1.5rem;
+    border-radius: 1.25rem;
+  }
+
+  .login-inspiration-title,
+  .login-inspiration-preview-title {
+    font-size: 1.5rem;
+  }
+
+  .login-inspiration-chip-row {
+    justify-content: flex-start;
+  }
+
+  .login-preview-stat-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .login-preview-stat-card-wide {
+    grid-column: span 1;
+  }
 }
 
 .login-form {
