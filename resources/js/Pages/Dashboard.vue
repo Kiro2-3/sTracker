@@ -37,11 +37,8 @@
         </button>
         
         <button
-          :class="[
-            'btn btn-sm md:btn-md justify-start gap-2 font-medium normal-case',
-            tab === 'transactions' ? 'btn-neutral text-base-100' : 'btn-ghost text-base-content'
-          ]"
-          @click="selectTab('transactions')"
+          class="btn btn-sm md:btn-md justify-start gap-2 font-medium normal-case btn-ghost text-base-content"
+          @click="router.get(route('transactions.recent'))"
         >
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="h-5 w-5">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 6v6h4.5M4.5 12a7.5 7.5 0 1115 0 7.5 7.5 0 01-15 0z" />
@@ -292,138 +289,10 @@
                 </div>
               </div>
             </div>
-            <!-- Pagination Controls -->
-            <div v-if="transactions.meta && transactions.meta.links && transactions.meta.links.length > 1" class="flex justify-center mt-6">
-              <nav class="inline-flex rounded-md shadow-sm" aria-label="Pagination">
-                <button
-                  v-for="link in transactions.meta.links"
-                  :key="link.label"
-                  :disabled="!link.url"
-                  @click="link.url && router.get(link.url)"
-                  v-html="link.label"
-                  class="px-4 py-2 border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 text-sm font-medium first:rounded-l-md last:rounded-r-md disabled:opacity-50 disabled:cursor-not-allowed"
-                  :class="{ 'bg-gray-200 text-gray-900 font-bold': link.active }"
-                />
-              </nav>
-            </div>
           </div>
         </template>
 
-        <template v-else-if="tab === 'transactions'">
-          <div class="card bg-base-100 border border-base-200 shadow-xl overflow-hidden">
-            <!-- Header -->
-            <div class="p-6 border-b border-base-200 flex items-center justify-between">
-              <div>
-                <h1 class="text-xl font-bold text-base-content">Transactions</h1>
-                <p class="text-sm text-base-content/60 mt-0.5">Browse and manage all your recorded transactions.</p>
-              </div>
-            </div>
 
-            <!-- Filters -->
-            <div class="p-6 border-b border-base-200">
-              <div class="flex flex-col gap-4 md:flex-row md:items-end">
-                <label class="form-control w-full md:flex-1 gap-1">
-                  <span class="label-text font-semibold text-base-content text-sm">Search</span>
-                  <input
-                    type="text"
-                    v-model="filters.search"
-                    placeholder="Search description or category…"
-                    class="input input-bordered input-sm w-full bg-base-100 text-base-content"
-                  />
-                </label>
-
-                <label class="form-control w-full md:w-36 gap-1">
-                  <span class="label-text font-semibold text-base-content text-sm">Type</span>
-                  <select v-model="filters.type" class="select select-bordered select-sm w-full bg-base-100 text-base-content">
-                    <option value="">All</option>
-                    <option value="income">Income</option>
-                    <option value="expense">Expense</option>
-                  </select>
-                </label>
-
-                <label class="form-control w-full md:w-36 gap-1">
-                  <span class="label-text font-semibold text-base-content text-sm">Category</span>
-                  <select
-                    v-model="filters.category"
-                    :disabled="filters.type === 'income'"
-                    class="select select-bordered select-sm w-full bg-base-100 text-base-content"
-                    :class="filters.type === 'income' ? 'opacity-50' : ''"
-                  >
-                    <option value="">All</option>
-                    <option v-for="cat in categories" :key="cat" :value="cat">{{ cat }}</option>
-                  </select>
-                </label>
-
-                <label class="form-control w-full md:w-36 gap-1">
-                  <span class="label-text font-semibold text-base-content text-sm">From</span>
-                  <input type="date" v-model="filters.date_from" class="input input-bordered input-sm w-full bg-base-100 text-base-content" />
-                </label>
-
-                <label class="form-control w-full md:w-36 gap-1">
-                  <span class="label-text font-semibold text-base-content text-sm">To</span>
-                  <input type="date" v-model="filters.date_to" class="input input-bordered input-sm w-full bg-base-100 text-base-content" />
-                </label>
-
-                <div class="flex items-end">
-                  <button type="button" @click="clearFilters" class="btn btn-ghost btn-sm">Clear</button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Table -->
-            <div class="overflow-x-auto">
-              <table class="table table-zebra w-full">
-                <thead>
-                  <tr class="bg-base-200 text-base-content/70 text-xs uppercase tracking-wider">
-                    <th>Date</th>
-                    <th>Description</th>
-                    <th>Category</th>
-                    <th>Amount</th>
-                    <th>Type</th>
-                    <th class="text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="t in filteredTransactions" :key="t.id" class="hover">
-                    <td class="whitespace-nowrap text-sm text-base-content/70">{{ t.entry_date }}</td>
-                    <td class="text-sm text-base-content font-medium">{{ t.description }}</td>
-                    <td class="whitespace-nowrap text-sm text-base-content/70">{{ t.category }}</td>
-                    <td class="font-semibold whitespace-nowrap text-sm" :class="t.type === 'income' ? 'text-success' : 'text-error'">
-                      ₱{{ t.amount }}
-                    </td>
-                    <td>
-                      <span
-                        class="badge badge-sm border-none font-semibold"
-                        :class="t.type === 'income' ? 'badge-success' : 'badge-error'"
-                      >
-                        {{ t.type }}
-                      </span>
-                    </td>
-                    <td class="text-right">
-                      <div class="flex justify-end gap-1">
-                        <button type="button" @click="openEditTransaction(t)" class="btn btn-ghost btn-xs text-primary">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                          </svg>
-                        </button>
-                        <button type="button" @click="deleteTransaction(t.id)" class="btn btn-ghost btn-xs text-error">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr v-if="filteredTransactions.length === 0">
-                    <td colspan="6" class="py-16 text-center text-base-content/40 text-sm">
-                      No transactions found.
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </template>
       </main>
 
       <AddTransaction v-if="showAddTransaction" :categories="categories" @close="showAddTransaction = false" />
@@ -461,44 +330,27 @@ const props = defineProps({
   transactions: Object,
   summary: Object,
   categories: Array,
+  transactionCategories: Array,
   expenseTotals: Array,
   incomeTotals: Array,
   chartTransactions: Array,
-  filters: Object,
 });
 
-const validTabs = ['dashboard', 'transactions'];
-const initialTab = validTabs.includes(window.location.hash.slice(1)) ? window.location.hash.slice(1) : 'dashboard';
-
-const tab = ref(initialTab);
-const tabLoading = ref({
-  dashboard: initialTab === 'dashboard',
-  transactions: initialTab === 'transactions',
-});
+const tab = ref('dashboard');
+const tabLoading = ref({ dashboard: true });
 
 function selectTab(target) {
   if (tab.value === target) {
     return;
   }
-
   tab.value = target;
-  window.location.hash = target;
   tabLoading.value[target] = true;
-
   setTimeout(() => {
     tabLoading.value[target] = false;
   }, 1500);
 }
 
-const filters = ref({
-  search: props.filters?.search || '',
-  type: props.filters?.type || '',
-  category: props.filters?.category || '',
-  date_from: props.filters?.date_from || '',
-  date_to: props.filters?.date_to || '',
-});
-
-// Dashboard chart filters (independent from transactions filter)
+// Dashboard chart filters
 const chartFilters = ref({
   type: '',
   category: '',
@@ -513,8 +365,8 @@ const activeChartFilterCount = computed(() => {
 // All user categories from the Categories table
 const expenseFilterCategories = computed(() => props.categories);
 
-// Chart category options: show all user categories
-const chartCategoryOptions = computed(() => props.categories);
+// Chart category options: only show categories used in actual transactions
+const chartCategoryOptions = computed(() => props.transactionCategories ?? props.categories);
 
 // When chart type is income, clear category so it doesn't filter by a stale value
 watch(
@@ -633,25 +485,6 @@ const pieChartColors = computed(() => {
   return filteredPieChartData.value.map(d => colorMap[d.label] || '#a3a3a3');
 });
 
-// Client-side filtered transactions for the Transactions tab
-const filteredTransactions = computed(() => {
-  const data = props.transactions?.data || [];
-  return data.filter((t) => {
-    if (filters.value.search) {
-      const q = filters.value.search.toLowerCase();
-      if (!t.description?.toLowerCase().includes(q) && !t.category?.toLowerCase().includes(q)) return false;
-    }
-    if (filters.value.type && t.type !== filters.value.type) return false;
-    if (filters.value.category && t.category !== filters.value.category) return false;
-    if (filters.value.date_from && t.entry_date < filters.value.date_from) return false;
-    if (filters.value.date_to && t.entry_date > filters.value.date_to) return false;
-    return true;
-  });
-});
-
-function clearFilters() {
-  filters.value = { search: '', type: '', category: '', date_from: '', date_to: '' };
-}
 function deleteTransaction(id) {
   if (confirm('Are you sure you want to delete this transaction?')) {
     router.delete(route('transactions.destroy', id));

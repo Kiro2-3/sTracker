@@ -114,12 +114,15 @@ class TransactionController extends Controller
             ->orderBy('entry_date')
             ->get(['entry_date', 'type', 'amount', 'category']);
 
-        // 4. User's full category list (from categories table, used for filters and modals)
+        // 4. User's full category list (from categories table, used for add/edit modals)
         $allCategories = $user->categories()->orderBy('name')->pluck('name');
 
         if ($allCategories->isEmpty()) {
             $allCategories = $user->transactions()->select('category')->distinct()->orderBy('category')->pluck('category');
         }
+
+        // 5. Categories actually used in transactions (for chart filter dropdown)
+        $transactionCategories = $user->transactions()->select('category')->distinct()->orderBy('category')->pluck('category');
 
         return Inertia::render('Dashboard', [
             'auth' => ['user' => $user],
@@ -130,6 +133,7 @@ class TransactionController extends Controller
                 'balance' => number_format($totalIncome - $totalExpense, 2, '.', '')
             ],
             'categories' => $allCategories,
+            'transactionCategories' => $transactionCategories,
             'expenseTotals' => $expenseTotals,
             'incomeTotals' => $incomeTotals,
             'chartTransactions' => $chartTransactions,

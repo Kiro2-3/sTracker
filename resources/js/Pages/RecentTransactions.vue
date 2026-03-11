@@ -150,7 +150,7 @@
           </div>
 
           <!-- Table -->
-          <div class="overflow-x-auto max-h-[60rem] overflow-y-auto">
+          <div class="overflow-x-auto max-h-[32rem] overflow-y-auto table-scroll">
             <table class="table table-zebra w-full">
               <thead>
                 <tr>
@@ -369,4 +369,18 @@ function exportCsv() {
 </script>
 
 <style scoped>
+.table-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.table-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.table-scroll::-webkit-scrollbar-thumb {
+  background-color: #d1d5db;
+  border-radius: 9999px;
+}
+.table-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: #9ca3af;
+}
 </style>
