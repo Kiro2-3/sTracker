@@ -34,7 +34,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, watch, onUnmounted } from 'vue';
 import { Link, usePage, router } from '@inertiajs/vue3';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import Dropdown from '@/Components/Dropdown.vue';
@@ -54,32 +54,26 @@ const user = computed(() => page.props.auth.user);
 const flash = computed(() => page.props.flash || {});
 const showingNavigationDropdown = ref(false);
 const showFlash = ref(false);
-
 let flashTimeout = null;
 
-function triggerFlash() {
-  if (page.props.flash?.success) {
-    showFlash.value = false;
-    if (flashTimeout) clearTimeout(flashTimeout);
-
-    // Next tick reset ensures the transition re-plays even for same message
-    setTimeout(() => {
-      showFlash.value = true;
-      flashTimeout = setTimeout(() => {
-        showFlash.value = false;
-      }, 3000);
-    }, 10);
-  }
-}
-
-let removeNavigateListener = null;
-
-onMounted(() => {
-  removeNavigateListener = router.on('navigate', triggerFlash);
-});
+watch(
+  () => page.props.flash,
+  (flashObj) => {
+    if (flashObj?.success) {
+      showFlash.value = false;
+      if (flashTimeout) clearTimeout(flashTimeout);
+      setTimeout(() => {
+        showFlash.value = true;
+        flashTimeout = setTimeout(() => {
+          showFlash.value = false;
+        }, 3000);
+      }, 10);
+    }
+  },
+  { immediate: true }
+);
 
 onUnmounted(() => {
-  if (removeNavigateListener) removeNavigateListener();
   if (flashTimeout) clearTimeout(flashTimeout);
 });
 </script>

@@ -162,7 +162,7 @@ class TransactionController extends Controller
             'name' => $validated['category'],
         ]);
 
-        return redirect()->back()->with('success', 'Successfully added transaction');
+        return redirect()->back(302, [], route('dashboard'))->with('success', 'Successfully added transaction');
     }
 
     // 3. Update a Transaction
@@ -187,7 +187,7 @@ class TransactionController extends Controller
             'name' => $validated['category'],
         ]);
 
-        return redirect()->back()->with('success', 'Transaction updated successfully');
+        return redirect()->back(302, [], route('dashboard'))->with('success', 'Transaction updated successfully');
     }
 
     // 4. Delete a Transaction
@@ -199,7 +199,7 @@ class TransactionController extends Controller
 
         $transaction->delete();
 
-        return redirect()->back()->with('success', 'Successfully deleted transaction');
+        return redirect()->back(302, [], route('dashboard'))->with('success', 'Successfully deleted transaction');
     }
 
     // 6. Export transactions as CSV (respects same filters as recent())

@@ -116,12 +116,12 @@
                     class="font-semibold whitespace-nowrap"
                     :class="t.type === 'income' ? 'text-green-600' : 'text-error'"
                   >
-                    ₱{{ Number(t.amount).toFixed(2) }}
+                    {{ t.type === 'income' ? '+' : '-' }}₱{{ Number(t.amount).toFixed(2) }}
                   </td>
                   <td class="uppercase text-xs font-bold tracking-wide">
                     <span
                       class="badge border-none px-3 py-2 text-xs font-semibold"
-                      :class="t.type === 'income' ? 'badge-success' : 'badge-error'"
+                      :class="t.type === 'income' ? 'bg-green-600 text-white' : 'badge-error'"
                     >
                       {{ t.type }}
                     </span>
@@ -296,7 +296,9 @@ function applyFilters() {
 
 function deleteTransaction(id) {
   if (confirm('Are you sure you want to delete this transaction?')) {
-    router.delete(route('transactions.destroy', id));
+    router.delete(route('transactions.destroy', id), {
+      preserveScroll: true,
+    });
   }
 }
 

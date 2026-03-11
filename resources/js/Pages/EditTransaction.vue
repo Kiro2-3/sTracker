@@ -135,6 +135,7 @@ const processing = ref(false);
 function submit() {
   processing.value = true;
   router.put(route('transactions.update', props.transaction.id), form.value, {
+    preserveScroll: true,
     onSuccess: () => {
       errors.value = {};
       processing.value = false;

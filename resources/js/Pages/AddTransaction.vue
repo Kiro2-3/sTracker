@@ -264,6 +264,7 @@ function deleteCategory(name) {
 function submit() {
   processing.value = true;
   router.post(route('transactions.store'), form.value, {
+    preserveScroll: true,
     onSuccess: () => {
       form.value = {
         description: '',
