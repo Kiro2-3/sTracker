@@ -100,13 +100,13 @@
   border-radius: 1.5rem;
 
 
-  padding: 3rem 2.5rem 2.5rem 2.5rem;
+  padding: 3.25rem 2.75rem 2.75rem 2.75rem;
   margin-bottom: 2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
-  max-width: 480px;
+  max-width: 540px;
 }
 .login-inspiration-icon {
   margin-bottom: 1.5rem;
@@ -756,7 +756,7 @@
 /* --- New hero-style login layout inspired by marketing page --- */
 
 .login-hero-shell {
-  max-width: 1120px;
+  max-width: 1240px;
   margin: 0 auto;
 }
 
@@ -776,14 +776,14 @@
 }
 
 .login-hero-logo {
-  width: 34px;
-  height: 34px;
+  width: 44px;
+  height: 44px;
   border-radius: 999px;
 }
 
 .login-hero-brand {
   font-weight: 800;
-  font-size: 1.25rem;
+  font-size: 1.4rem;
   letter-spacing: 0.03em;
   color: #0f172a;
 }
@@ -844,11 +844,11 @@
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  padding: 0.35rem 0.9rem;
+  padding: 0.45rem 1.1rem;
   border-radius: 999px;
   background: #f4f4ff;
   color: #4b5563;
-  font-size: 0.82rem;
+  font-size: 0.9rem;
   font-weight: 600;
   margin-bottom: 1.25rem;
 }
@@ -862,7 +862,7 @@
 }
 
 .login-hero-title {
-  font-size: clamp(2.4rem, 3.4vw + 1.8rem, 3.6rem);
+  font-size: clamp(2.8rem, 3.8vw + 2rem, 4rem);
   line-height: 1.1;
   font-weight: 800;
   letter-spacing: -0.03em;
@@ -878,38 +878,38 @@
   margin: 0 0 1.8rem 0;
   max-width: 520px;
   color: #6b7280;
-  font-size: 0.98rem;
+  font-size: 1.08rem;
   line-height: 1.7;
 }
 
 .login-hero-cta-row {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 1.25rem;
 }
 
 .login-hero-primary-cta {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.85rem 1.8rem;
+  padding: 1rem 2.1rem;
   border-radius: 999px;
   background: #8b5cf6;
   color: #f9fafb;
   font-weight: 700;
-  font-size: 0.98rem;
+  font-size: 1.05rem;
   text-decoration: none;
   box-shadow: 0 20px 45px rgba(139, 92, 246, 0.4);
 }
 
 .login-hero-secondary-cta {
-  padding: 0.85rem 1.5rem;
+  padding: 1rem 1.8rem;
   border-radius: 999px;
   border: 1px solid #e5e7eb;
   background: #ffffff;
   color: #4b5563;
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 1.02rem;
 }
 
 .login-hero-card-wrapper {
