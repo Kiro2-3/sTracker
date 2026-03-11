@@ -1,20 +1,43 @@
-FROM richarvey/nginx-php-fpm:latest
+# ─── Stage 1: Build frontend assets ───────────────────────────────────────────
+FROM node:20-alpine AS frontend
 
-# I-copy ang lahat ng files ng project
-COPY . /var/www/html
+WORKDIR /app
 
-# I-set ang working directory
+COPY package*.json ./
+RUN npm ci
+
+COPY . .
+RUN npm run build
+
+# ─── Stage 2: Production image ────────────────────────────────────────────────
+FROM serversideup/php:8.3-fpm-nginx
+
+USER root
+
+# Copy application files
+COPY --chown=www-data:www-data . /var/www/html
+
+# Copy compiled frontend assets from stage 1
+COPY --from=frontend --chown=www-data:www-data /app/public/build /var/www/html/public/build
+
 WORKDIR /var/www/html
 
-# I-install ang dependencies (no-dev para sa production)
-RUN composer install --no-dev --optimize-autoloader
+# Install PHP dependencies (no dev packages in production)
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress
 
-# I-set ang permissions
-RUN chown -R webuser:webgroup /var/www/html/storage /var/www/html/bootstrap/cache
+# Storage & cache directories
+RUN mkdir -p storage/logs storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache \
+    && chown -R www-data:www-data storage bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache
 
-# I-configure ang Nginx para sa Laravel (public folder)
-ENV WEBROOT /var/www/html/public
-ENV APP_ENV production
+# Create the storage symlink (public/storage -> storage/app/public)
+RUN php artisan storage:link
 
-# Awtomatikong mag-migrate (Optional pero helpful)
-ENV RUN_SCRIPTS 1
+# Startup script (runs migrations + caching at container start with real env vars)
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
+
+ENV APP_ENV=production
+ENV LOG_CHANNEL=stderr
+
+CMD ["/start.sh"]
