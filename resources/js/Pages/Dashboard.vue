@@ -114,75 +114,161 @@
             </div>
 
             <!-- Chart Filters -->
-            <div class="bg-white rounded-2xl shadow border border-gray-100 mb-8 w-full p-6">
-              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2">
-                <h4 class="font-semibold text-gray-800 text-lg">Chart Filters</h4>
-                <button type="button" class="text-blue-600 hover:underline text-sm font-medium" @click="clearChartFilters">
-                  Clear All
-                </button>
-              </div>
-              <div class="flex flex-col sm:flex-row flex-wrap gap-4 items-stretch">
-                <div class="flex flex-col gap-1 w-full sm:w-auto">
-                  <label class="font-semibold text-gray-700 mb-1" for="chart-type">Type</label>
-                  <select id="chart-type" v-model="chartFilters.type" class="rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-gray-800 focus:border-blue-400 focus:ring-blue-400 text-sm">
-                    <option value="">All</option>
-                    <option value="income">Income</option>
-                    <option value="expense">Expense</option>
-                  </select>
+            <div class="card border border-base-200 bg-base-100 shadow-xl mb-8 w-full">
+              <div class="card-body gap-5 p-6">
+                <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                  <div class="space-y-2">
+                    <div class="flex flex-wrap items-center gap-2">
+                      <h4 class="text-lg font-semibold text-base-content">Chart Filters</h4>
+                      <span class="badge badge-primary badge-outline">{{ activeChartFilterCount }} active</span>
+                    </div>
+                    <p class="text-sm text-base-content/60">
+                      Refine the trend and breakdown cards using type, category, and date range.
+                    </p>
+                  </div>
+                  <button type="button" class="btn btn-ghost btn-sm" @click="clearChartFilters">
+                    Clear All
+                  </button>
                 </div>
-                <div class="flex flex-col gap-1 w-full sm:w-auto">
-                  <label class="font-semibold text-gray-700 mb-1" for="chart-category">Category</label>
-                  <select
-                    id="chart-category"
-                    v-model="chartFilters.category"
-                    :disabled="chartFilters.type === 'income'"
-                    :class="[
-                      'rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-400 focus:ring-blue-400',
-                      chartFilters.type === 'income'
-                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                        : 'bg-gray-50 text-gray-800'
-                    ]"
-                  >
-                    <option value="">All</option>
-                    <option
-                      v-for="cat in chartCategoryOptions"
-                      :key="cat"
-                      :value="cat"
+
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+                  <label class="form-control w-full gap-2">
+                    <span class="label-text font-semibold text-base-content">Type</span>
+                    <select id="chart-type" v-model="chartFilters.type" class="select select-bordered w-full bg-base-100 text-base-content">
+                      <option value="">All</option>
+                      <option value="income">Income</option>
+                      <option value="expense">Expense</option>
+                    </select>
+                  </label>
+
+                  <label class="form-control w-full gap-2">
+                    <span class="label-text font-semibold text-base-content">Category</span>
+                    <select
+                      id="chart-category"
+                      v-model="chartFilters.category"
+                      :disabled="chartFilters.type === 'income'"
+                      :class="[
+                        'select select-bordered w-full bg-base-100 text-base-content',
+                        chartFilters.type === 'income' ? 'select-disabled opacity-60' : ''
+                      ]"
                     >
-                      {{ cat }}
-                    </option>
-                  </select>
-                </div>
-                <div class="flex flex-col gap-1 w-full sm:w-auto">
-                  <label class="font-semibold text-gray-700 mb-1" for="chart-date-from">From</label>
-                  <input id="chart-date-from" type="date" v-model="chartFilters.date_from" class="rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-gray-800 focus:border-blue-400 focus:ring-blue-400 text-sm" />
-                </div>
-                <div class="flex flex-col gap-1 w-full sm:w-auto">
-                  <label class="font-semibold text-gray-700 mb-1" for="chart-date-to">To</label>
-                  <input id="chart-date-to" type="date" v-model="chartFilters.date_to" class="rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-gray-800 focus:border-blue-400 focus:ring-blue-400 text-sm" />
+                      <option value="">All</option>
+                      <option
+                        v-for="cat in chartCategoryOptions"
+                        :key="cat"
+                        :value="cat"
+                      >
+                        {{ cat }}
+                      </option>
+                    </select>
+                  </label>
+
+                  <label class="form-control w-full gap-2">
+                    <span class="label-text font-semibold text-base-content">From</span>
+                    <input id="chart-date-from" v-model="chartFilters.date_from" type="date" class="input input-bordered w-full bg-base-100 text-base-content" />
+                  </label>
+
+                  <label class="form-control w-full gap-2">
+                    <span class="label-text font-semibold text-base-content">To</span>
+                    <input id="chart-date-to" v-model="chartFilters.date_to" type="date" class="input input-bordered w-full bg-base-100 text-base-content" />
+                  </label>
                 </div>
               </div>
             </div>
 
             <!-- Charts -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
-              <!-- Line chart (left) -->
-              <div>
-                <div class="bg-white rounded-2xl shadow border border-gray-100 h-96 p-8 flex flex-col items-center justify-center w-full">
-                  <h3 class="font-semibold mb-4 text-lg text-gray-800">Income vs Expense Over Time</h3>
-                  <div class="w-full" style="min-height: 220px; height: 30vw; max-height: 340px;">
-                    <LineChart :data="filteredLineData" />
+            <div class="grid grid-cols-1 gap-8 xl:grid-cols-5 w-full">
+              <div class="xl:col-span-3">
+                <div class="card border border-base-200 bg-base-100 shadow-xl">
+                  <div class="card-body gap-6 p-6">
+                    <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                      <div class="space-y-2">
+                        <div class="flex flex-wrap items-center gap-2">
+                          <h3 class="text-xl font-semibold text-base-content">Income vs Expense Over Time</h3>
+                          <span class="badge badge-primary badge-outline">Trend Overview</span>
+                        </div>
+                        <p class="text-sm text-base-content/60">
+                          {{ chartDateRangeLabel }} · {{ filteredLineData.length }} plotted period<span v-if="filteredLineData.length !== 1">s</span>
+                        </p>
+                      </div>
+
+                      <div class="flex flex-wrap gap-2">
+                        <div class="badge badge-success badge-outline gap-2 px-3 py-3">
+                          <span class="h-2.5 w-2.5 rounded-full bg-success"></span>
+                          Income ₱{{ formatCurrency(summaryForDisplay.income) }}
+                        </div>
+                        <div class="badge badge-error badge-outline gap-2 px-3 py-3">
+                          <span class="h-2.5 w-2.5 rounded-full bg-error"></span>
+                          Expense ₱{{ formatCurrency(summaryForDisplay.expense) }}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                      <div class="rounded-2xl border border-success/20 bg-success/5 px-4 py-3">
+                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-success/80">Income Signal</p>
+                        <p class="mt-1 text-lg font-semibold text-base-content">₱{{ formatCurrency(summaryForDisplay.income) }}</p>
+                      </div>
+                      <div class="rounded-2xl border border-error/20 bg-error/5 px-4 py-3">
+                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-error/80">Expense Signal</p>
+                        <p class="mt-1 text-lg font-semibold text-base-content">₱{{ formatCurrency(summaryForDisplay.expense) }}</p>
+                      </div>
+                    </div>
+
+                    <div class="rounded-3xl border border-base-200 bg-gradient-to-br from-primary/5 via-base-100 to-secondary/10 p-4">
+                      <div class="h-[320px] w-full">
+                        <LineChart :data="filteredLineData" />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-              <!-- Pie chart (right) -->
-              <div>
-                <div class="bg-white rounded-2xl shadow border border-gray-100 h-96 p-8 flex flex-col items-center justify-center w-full">
-                  <h3 class="font-semibold mb-4 text-lg text-center text-gray-800">Category Breakdown</h3>
-                  <div v-if="filteredPieChartData.length > 0" class="w-full flex items-center justify-center" style="width: 380px; height: 380px; min-width: 280px; min-height: 280px; max-width: 280px; max-height: 280px;">
-                    <PieChart :data="filteredPieChartData" :colors="pieChartColors" />
+
+              <div class="xl:col-span-2">
+                <div class="card border border-base-200 bg-base-100 shadow-xl h-full">
+                  <div class="card-body gap-6 p-6">
+                    <div class="space-y-2">
+                      <div class="flex flex-wrap items-center gap-2">
+                        <h3 class="text-xl font-semibold text-base-content">Category Breakdown</h3>
+                        <span class="badge badge-secondary badge-outline">Spending Mix</span>
+                      </div>
+                      <p class="text-sm text-base-content/60">
+                        A modern doughnut view of your current totals.
+                      </p>
+                    </div>
+
+                    <div v-if="filteredPieChartData.length > 0" class="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_220px] xl:grid-cols-1 2xl:grid-cols-[minmax(0,1fr)_220px] items-center">
+                      <div class="mx-auto flex h-[300px] w-full max-w-[300px] items-center justify-center rounded-3xl border border-base-200 bg-gradient-to-br from-secondary/10 via-base-100 to-primary/5 p-4">
+                        <div class="h-full w-full">
+                          <PieChart :data="filteredPieChartData" :colors="pieChartColors" />
+                        </div>
+                      </div>
+
+                      <div class="space-y-3">
+                        <div
+                          v-for="(slice, index) in filteredPieChartData"
+                          :key="slice.label"
+                          class="flex items-center justify-between rounded-2xl border border-base-200 bg-base-200/40 px-4 py-3"
+                        >
+                          <div class="flex items-center gap-3">
+                            <span class="h-3 w-3 rounded-full" :style="{ backgroundColor: pieChartColors[index] || '#94a3b8' }"></span>
+                            <div>
+                              <p class="text-sm font-medium text-base-content">{{ slice.label }}</p>
+                              <p class="text-xs text-base-content/60">Share snapshot</p>
+                            </div>
+                          </div>
+                          <span class="text-sm font-semibold text-base-content">₱{{ formatCurrency(slice.value) }}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div v-else class="flex min-h-[300px] items-center justify-center rounded-3xl border border-dashed border-base-300 bg-base-200/40 text-center">
+                      <div class="space-y-2 px-6">
+                        <p class="text-base font-semibold text-base-content">No chart data yet</p>
+                        <p class="text-sm text-base-content/60">Add transactions to generate the modern breakdown view.</p>
+                      </div>
+                    </div>
                   </div>
-                  <p v-else class="text-gray-400 mt-10">Add transactions to see the diagram</p>
                 </div>
               </div>
             </div>
@@ -409,6 +495,10 @@ const chartFilters = ref({
   date_to: ''
 });
 
+const activeChartFilterCount = computed(() => {
+  return Object.values(chartFilters.value).filter((value) => value !== '').length;
+});
+
 // Category lists without 'Salary' for expense-related filters
 const expenseFilterCategories = computed(() => props.categories.filter(cat => cat !== 'Salary'));
 
@@ -502,6 +592,31 @@ const summaryForDisplay = computed(() => {
     balance: balance.toFixed(2),
   };
 });
+
+const chartDateRangeLabel = computed(() => {
+  const { date_from: dateFrom, date_to: dateTo } = chartFilters.value;
+
+  if (dateFrom && dateTo) {
+    return `${dateFrom} → ${dateTo}`;
+  }
+
+  if (dateFrom) {
+    return `From ${dateFrom}`;
+  }
+
+  if (dateTo) {
+    return `Until ${dateTo}`;
+  }
+
+  return 'All recorded dates';
+});
+
+function formatCurrency(amount) {
+  return new Intl.NumberFormat('en-PH', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(Number(amount || 0));
+}
 
 
 const pieChartColors = computed(() => {

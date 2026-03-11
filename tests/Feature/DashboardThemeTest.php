@@ -25,5 +25,8 @@ class DashboardThemeTest extends TestCase
 
         // the toggle button markup includes title attribute
         $response->assertSee('Toggle theme');
+
+        $response->assertSee('Trend Overview');
+        $response->assertSee('Spending Mix');
     }
 }

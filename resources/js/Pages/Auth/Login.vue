@@ -96,28 +96,7 @@
       <div class="login-inspiration-preview">
         <div class="login-inspiration-preview-glow login-inspiration-preview-glow-one"></div>
         <div class="login-inspiration-preview-glow login-inspiration-preview-glow-two"></div>
-        <div class="login-inspiration-preview-content">
-  
-        
-          <p class="login-inspiration-preview-copy">
-            Monitor balances, review transaction history, and spot income versus expense trends from a clean dashboard.
-          </p>
-
-          <div class="login-preview-stat-grid">
-            <div class="login-preview-stat-card">
-              <span class="login-preview-stat-label">Total Income</span>
-              <strong class="login-preview-stat-value text-income">₱620,544.01</strong>
-            </div>
-            <div class="login-preview-stat-card">
-              <span class="login-preview-stat-label">Total Expenses</span>
-              <strong class="login-preview-stat-value text-expense">₱81,978.98</strong>
-            </div>
-            <div class="login-preview-stat-card login-preview-stat-card-wide">
-              <span class="login-preview-stat-label">Total Revenue</span>
-              <strong class="login-preview-stat-value text-revenue">₱538,565.03</strong>
-            </div>
-          </div>
-
+        <div class="login-inspiration-image-showcase">
           <div class="login-inspiration-dashboard-frame">
             <img
               :src="dashboardPreviewUrl"
@@ -125,8 +104,6 @@
               class="login-inspiration-preview-img"
             />
           </div>
-
-
         </div>
       </div>
     </div>
