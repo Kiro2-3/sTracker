@@ -34,14 +34,13 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
-import { Link, usePage } from '@inertiajs/vue3';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { Link, usePage, router } from '@inertiajs/vue3';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import ThemeToggle from '@/Components/ThemeToggle.vue';
-// DropdownTrigger, DropdownContent, DropdownLink are subcomponents of Dropdown.vue
 import DropdownTrigger from '@/Components/Dropdown.vue';
 import DropdownContent from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
@@ -58,22 +57,31 @@ const showFlash = ref(false);
 
 let flashTimeout = null;
 
-watch(
-  () => page.props.flash?.success,
-  (newSuccess) => {
-    if (newSuccess) {
+function triggerFlash() {
+  if (page.props.flash?.success) {
+    showFlash.value = false;
+    if (flashTimeout) clearTimeout(flashTimeout);
+
+    // Next tick reset ensures the transition re-plays even for same message
+    setTimeout(() => {
       showFlash.value = true;
-
-      if (flashTimeout) {
-        clearTimeout(flashTimeout);
-      }
-
       flashTimeout = setTimeout(() => {
         showFlash.value = false;
       }, 3000);
-    }
+    }, 10);
   }
-);
+}
+
+let removeNavigateListener = null;
+
+onMounted(() => {
+  removeNavigateListener = router.on('navigate', triggerFlash);
+});
+
+onUnmounted(() => {
+  if (removeNavigateListener) removeNavigateListener();
+  if (flashTimeout) clearTimeout(flashTimeout);
+});
 </script>
 
 <style scoped>

@@ -1,7 +1,6 @@
 <template>
   <Modal :show="true" maxWidth="md" :onClose="closeModal">
-    <div class="card w-full max-w-lg bg-base-100 shadow-2xl border border-base-200">
-      <div class="card-body p-8 bg-gradient-to-br from-base-100 to-base-200">
+    <div class="card w-full max-w-lg bg-base-100 border border-base-200">
         <div class="mb-4 flex items-center justify-between">
           <div class="flex items-center gap-3">
             <div class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
@@ -54,7 +53,7 @@
             <InputLabel value="Type" htmlFor="type" />
             <select
               id="type"
-              class="select select-bordered w-full text-gray-800 bg-gray-50 border border-gray-300 focus:border-blue-400 focus:ring-blue-400 dark:bg-gray-800 dark:text-white dark:border-gray-700"
+              class="select select-bordered w-full bg-base-100 text-base-content select-disabled opacity-60"
               v-model="form.type"
               disabled
             >
@@ -67,7 +66,8 @@
             <InputLabel value="Category" htmlFor="category" />
             <select
               id="category"
-              class="select select-bordered w-full text-gray-800 bg-gray-50 border border-gray-300 focus:border-blue-400 focus:ring-blue-400 dark:bg-gray-800 dark:text-white dark:border-gray-700"
+              class="select select-bordered w-full bg-base-100 text-base-content"
+              :class="form.type === 'income' ? 'select-disabled opacity-60' : ''"
               v-model="form.category"
               :disabled="form.type === 'income'"
             >
@@ -99,7 +99,6 @@
           </PrimaryButton>
         </div>
         </form>
-      </div>
     </div>
   </Modal>
 </template>
