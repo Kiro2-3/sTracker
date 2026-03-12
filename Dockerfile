@@ -1,43 +1,55 @@
-# ─── Stage 1: Build frontend assets ───────────────────────────────────────────
-FROM node:20-alpine AS frontend
+FROM php:8.4-fpm-alpine
 
-WORKDIR /app
+# Install system dependencies
+RUN apk add --no-cache \
+    curl \
+    bash \
+    nginx \
+    supervisor \
+    libpng-dev \
+    libxml2-dev \
+    libzip-dev \
+    oniguruma-dev \
+    icu-dev \
+    nodejs \
+    npm
 
-COPY package*.json ./
-RUN npm ci
+# Install PHP extensions
+RUN docker-php-ext-install \
+    pdo_mysql \
+    mbstring \
+    exif \
+    pcntl \
+    bcmath \
+    gd \
+    zip \
+    intl
 
-COPY . .
-RUN npm run build
-
-# ─── Stage 2: Production image ────────────────────────────────────────────────
-FROM serversideup/php:8.3-fpm-nginx
-
-USER root
-
-# Copy application files
-COPY --chown=www-data:www-data . /var/www/html
-
-# Copy compiled frontend assets from stage 1
-COPY --from=frontend --chown=www-data:www-data /app/public/build /var/www/html/public/build
-
+# Set working directory
 WORKDIR /var/www/html
 
-# Install PHP dependencies (no dev packages in production)
-RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress
+# Copy application files
+COPY . .
 
-# Storage & cache directories
-RUN mkdir -p storage/logs storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache \
-    && chown -R www-data:www-data storage bootstrap/cache \
-    && chmod -R 775 storage bootstrap/cache
+# Install Composer dependencies
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+RUN php /usr/local/bin/composer install --optimize-autoloader
 
-# Create the storage symlink (public/storage -> storage/app/public)
-RUN php artisan storage:link
+# Install NPM dependencies and build assets
+# (Wayfinder needs PHP to run artisan, so we build in the same stage)
+RUN npm install
+RUN npm run build
 
-# Startup script (runs migrations + caching at container start with real env vars)
-COPY start.sh /start.sh
-RUN chmod +x /start.sh
+# Set permissions
+RUN chown -R www-data:www-data storage bootstrap/cache
+RUN chmod +x docker/entrypoint.sh
 
-ENV APP_ENV=production
-ENV LOG_CHANNEL=stderr
+# Copy Nginx and Supervisor configs
+COPY docker/nginx.conf /etc/nginx/nginx.conf
+COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-CMD ["/start.sh"]
+# Exposure
+EXPOSE 80
+
+# Start with entrypoint
+ENTRYPOINT ["docker/entrypoint.sh"]
