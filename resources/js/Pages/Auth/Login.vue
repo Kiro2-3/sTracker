@@ -119,23 +119,6 @@
               </div>
             </div>
           </div>
-
-          <!-- Stats row -->
-          <div class="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-            <div class="bg-base-100 rounded-2xl py-6 px-4 shadow-sm border border-base-200">
-              <p class="text-3xl font-extrabold text-primary">₱2M+</p>
-              <p class="text-xs text-base-content/60 mt-1">Transactions tracked</p>
-            </div>
-            <div class="bg-base-100 rounded-2xl py-6 px-4 shadow-sm border border-base-200">
-              <p class="text-3xl font-extrabold text-primary">98%</p>
-              <p class="text-xs text-base-content/60 mt-1">Uptime reliability</p>
-            </div>
-            <div class="bg-base-100 rounded-2xl py-6 px-4 shadow-sm border border-base-200">
-              <p class="text-3xl font-extrabold text-primary">4.9 ★</p>
-              <p class="text-xs text-base-content/60 mt-1">Average user rating</p>
-            </div>
-          </div>
-
           <!-- How it works -->
           <div class="mt-14">
             <h2 class="text-xl font-bold text-base-content mb-6 text-center">How it works</h2>
