@@ -1,26 +1,34 @@
 <template>
-  <div class="chatbot-root" role="dialog" aria-label="Help assistant">
+  <div class="chatbot-root border border-base-200 bg-base-100 text-base-content" role="dialog" aria-label="Help assistant">
     <div class="chat-header">
       <div>Assistant</div>
     </div>
 
     <div class="chat-choices">
-      <button class="choice" @click.prevent="choose('add_account')">Add Bank Account</button>
-      <button class="choice" @click.prevent="choose('create_transaction')">Create Transaction</button>
-      <button class="choice" @click.prevent="choose('manage_categories')">Manage Categories</button>
-      <button class="choice" @click.prevent="choose('export_csv')">Export CSV</button>
-      <button class="choice" @click.prevent="choose('navigation')">App Navigation Tour</button>
+      <button class="choice border border-base-200 bg-base-200/70 text-base-content" @click.prevent="choose('add_account')">Add Bank Account</button>
+      <button class="choice border border-base-200 bg-base-200/70 text-base-content" @click.prevent="choose('create_transaction')">Create Transaction</button>
+      <button class="choice border border-base-200 bg-base-200/70 text-base-content" @click.prevent="choose('manage_categories')">Manage Categories</button>
+      <button class="choice border border-base-200 bg-base-200/70 text-base-content" @click.prevent="choose('export_csv')">Export CSV</button>
+      <button class="choice border border-base-200 bg-base-200/70 text-base-content" @click.prevent="choose('navigation')">App Navigation Tour</button>
     </div>
 
     <div class="chat-messages" ref="messagesRef">
       <div v-for="(m, i) in messages" :key="i" :class="['chat-message', m.from]">
-        <div class="chat-text">{{ m.text }}</div>
+        <div
+          :class="[
+            'chat-text',
+            m.from === 'user'
+              ? 'bg-gradient-to-r from-primary to-secondary text-primary-content'
+              : 'border border-base-200 bg-base-200/70 text-base-content'
+          ]"
+        >{{ m.text }}</div>
       </div>
     </div>
 
     <form class="chat-input" @submit.prevent="send">
       <input
         v-model="input"
+        class="input input-bordered input-sm w-full bg-base-100 text-base-content placeholder:text-base-content/40"
         :placeholder="loading ? 'Thinking...' : ''"
         @keydown.enter.exact.prevent="send"
         :disabled="loading"
@@ -184,10 +192,9 @@ scrollBottom()
 .chatbot-root {
   width: min(340px, 92vw);
   max-width: 420px;
-  background: rgba(255,255,255,0.96);
-  color: #0f172a;
   border-radius: 12px;
-  box-shadow: 0 12px 30px rgba(2,6,23,0.14);
+  box-shadow: 0 12px 30px rgba(2, 6, 23, 0.14);
+  backdrop-filter: blur(10px);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -201,36 +208,12 @@ scrollBottom()
   align-items:center;
 }
 .chat-choices { display:flex; flex-wrap:wrap; gap:0.5rem; padding:0.6rem }
-.choice { background: rgba(0,0,0,0.04); border:0; padding:0.38rem 0.6rem; border-radius:9999px; font-size:0.85rem; cursor:pointer }
-.choice:hover { transform: translateY(-2px) }
+.choice { padding:0.38rem 0.6rem; border-radius:9999px; font-size:0.85rem; cursor:pointer; transition: transform 0.15s ease, filter 0.15s ease }
+.choice:hover { transform: translateY(-2px); filter: brightness(0.98) }
 .chat-messages { max-height: 260px; overflow:auto; padding: 0.4rem 0.6rem; flex:1 }
 .chat-message { margin-bottom: 0.6rem; display:flex }
 .chat-message.user { justify-content: flex-end }
 .chat-message.ai { justify-content: flex-start }
 .chat-text { padding: 0.5rem 0.68rem; border-radius: 10px; max-width: 80%; line-height:1.25; white-space:pre-wrap }
-.chat-message.user .chat-text {
-  background: linear-gradient(90deg,#4f46e5,#7c3aed); /* stronger primary gradient for user messages */
-  color: #ffffff;
-}
-.chat-message.ai .chat-text {
-  background: linear-gradient(90deg,#f1f5f9,#e2e8f0); /* light neutral for assistant */
-  color: #0f172a;
-}
-.chat-input { display:flex; gap:0.5rem; padding: 0.5rem; border-top: 1px solid rgba(2,6,23,0.05) }
-.chat-input input { flex:1; padding:0.45rem 0.6rem; border-radius:8px; border:1px solid #e6e6e9 }
-
-@media (prefers-color-scheme: dark) {
-  .chatbot-root { background: rgba(8,10,18,0.9); color: #e6eef8 }
-  .chat-text { color: #e6eef8 }
-  .choice { background: rgba(255,255,255,0.03) }
-  .chat-message.user .chat-text {
-    background: linear-gradient(90deg,#3730a3,#7c3aed);
-    color: #ffffff;
-  }
-  .chat-message.ai .chat-text {
-    background: linear-gradient(90deg,#0b1220,#172554);
-    color: #e6eef8;
-  }
-  .chat-input input { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.08); color: #e6eef8 }
-}
+.chat-input { display:flex; gap:0.5rem; padding: 0.5rem; border-top: 1px solid rgba(148, 163, 184, 0.18) }
 </style>
