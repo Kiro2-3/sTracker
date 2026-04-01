@@ -236,6 +236,24 @@
 
                     </div>
 
+                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                      <div class="rounded-2xl border border-error/20 bg-error/5 px-4 py-3">
+                        <p class="text-xs font-semibold uppercase tracking-widest text-error/80">This Day Consumption</p>
+                        <p class="mt-1 text-lg font-bold text-base-content">{{ currencySymbol }}{{ formatCurrency(consumptionSummary.today) }}</p>
+                        <p class="mt-1 text-xs text-base-content/60">Expenses recorded for {{ todayLabel }}</p>
+                      </div>
+                      <div class="rounded-2xl border border-warning/20 bg-warning/10 px-4 py-3">
+                        <p class="text-xs font-semibold uppercase tracking-widest text-warning/80">Weekly Consumption</p>
+                        <p class="mt-1 text-lg font-bold text-base-content">{{ currencySymbol }}{{ formatCurrency(consumptionSummary.week) }}</p>
+                        <p class="mt-1 text-xs text-base-content/60">Expenses from {{ weekRangeLabel }}</p>
+                      </div>
+                      <div class="rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3">
+                        <p class="text-xs font-semibold uppercase tracking-widest text-primary/80">Monthly Consumption</p>
+                        <p class="mt-1 text-lg font-bold text-base-content">{{ currencySymbol }}{{ formatCurrency(consumptionSummary.month) }}</p>
+                        <p class="mt-1 text-xs text-base-content/60">Expenses for {{ monthLabel }}</p>
+                      </div>
+                    </div>
+
                     <div class="grid grid-cols-2 gap-2">
                       <div class="rounded-xl border border-success/20 bg-success/5 px-3 py-2">
                         <p class="text-xs font-semibold uppercase tracking-widest text-success/80">Income Signal</p>
@@ -491,6 +509,81 @@ const chartDateRangeLabel = computed(() => {
 // Maps each pie slice to its fixed colour via PIE_CHART_COLOR_MAP; grey fallback for unknowns
 const pieChartColors = computed(() => {
   return filteredPieChartData.value.map((d) => PIE_CHART_COLOR_MAP[d.label] || '#a3a3a3')
+})
+
+const todayIso = computed(() => new Date().toISOString().slice(0, 10))
+
+const weekBounds = computed(() => {
+  const currentDate = new Date()
+  const dayOfWeek = currentDate.getDay()
+  const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek
+
+  const weekStart = new Date(currentDate)
+  weekStart.setHours(0, 0, 0, 0)
+  weekStart.setDate(currentDate.getDate() + mondayOffset)
+
+  const weekEnd = new Date(weekStart)
+  weekEnd.setDate(weekStart.getDate() + 6)
+
+  return {
+    start: weekStart.toISOString().slice(0, 10),
+    end: weekEnd.toISOString().slice(0, 10),
+  }
+})
+
+const monthPrefix = computed(() => todayIso.value.slice(0, 7))
+
+const todayLabel = computed(() => {
+  return new Intl.DateTimeFormat('en-PH', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(new Date(`${todayIso.value}T00:00:00`))
+})
+
+const weekRangeLabel = computed(() => {
+  const formatter = new Intl.DateTimeFormat('en-PH', {
+    month: 'short',
+    day: 'numeric',
+  })
+
+  return `${formatter.format(new Date(`${weekBounds.value.start}T00:00:00`))} - ${formatter.format(new Date(`${weekBounds.value.end}T00:00:00`))}`
+})
+
+const monthLabel = computed(() => {
+  return new Intl.DateTimeFormat('en-PH', {
+    month: 'long',
+    year: 'numeric',
+  }).format(new Date(`${monthPrefix.value}-01T00:00:00`))
+})
+
+const consumptionSummary = computed(() => {
+  return filteredChartTransactions.value.reduce((totals, transaction) => {
+    if (transaction.type !== 'expense') {
+      return totals
+    }
+
+    const entryDate = transaction.entry_date
+    const amount = Number(transaction.amount)
+
+    if (entryDate === todayIso.value) {
+      totals.today += amount
+    }
+
+    if (entryDate >= weekBounds.value.start && entryDate <= weekBounds.value.end) {
+      totals.week += amount
+    }
+
+    if (entryDate.startsWith(monthPrefix.value)) {
+      totals.month += amount
+    }
+
+    return totals
+  }, {
+    today: 0,
+    week: 0,
+    month: 0,
+  })
 })
 
 // Formats a number as Philippine Peso with locale-aware thousand separators
