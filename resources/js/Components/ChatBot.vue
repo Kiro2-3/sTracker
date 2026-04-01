@@ -7,15 +7,6 @@
       </div>
     </div>
 
-    <div class="chat-choices">
-      <button
-        v-for="choice in quickChoices"
-        :key="choice.key"
-        class="choice border border-base-200 bg-base-200/70 text-base-content"
-        @click.prevent="choose(choice.key)"
-      >{{ choice.label }}</button>
-    </div>
-
     <div class="chat-messages" ref="messagesRef">
       <div v-for="(m, i) in messages" :key="i" :class="['chat-message', m.from]">
         <div
@@ -113,14 +104,6 @@ const messages = ref([
 const input = ref('')
 const loading = ref(false)
 const messagesRef = ref(null)
-
-const quickChoices = [
-  { key: 'add_account', label: 'Add Bank Account' },
-  { key: 'create_transaction', label: 'Create Transaction' },
-  { key: 'manage_categories', label: 'Manage Categories' },
-  { key: 'export_csv', label: 'Export CSV' },
-  { key: 'navigation', label: 'App Navigation Tour' },
-]
 
 function addMessage(message) {
   messages.value.push(message)
@@ -507,9 +490,6 @@ scrollBottom()
   font-weight: 500;
   opacity: 0.88;
 }
-.chat-choices { display:flex; flex-wrap:wrap; gap:0.5rem; padding:0.6rem }
-.choice { padding:0.38rem 0.6rem; border-radius:9999px; font-size:0.85rem; cursor:pointer; transition: transform 0.15s ease, filter 0.15s ease }
-.choice:hover { transform: translateY(-2px); filter: brightness(0.98) }
 .chat-messages { max-height: 260px; overflow:auto; padding: 0.4rem 0.6rem; flex:1 }
 .chat-message { margin-bottom: 0.6rem; display:flex }
 .chat-message.user { justify-content: flex-end }
