@@ -7,9 +7,9 @@ test('login screen can be rendered', function () {
     $response = $this->get('/login');
 
     $response->assertStatus(200);
-    $response->assertSee('Sign in to your finance workspace');
-    $response->assertSee('sTracker dashboard preview');
-    $response->assertSee('Secure login');
+    $response->assertSee('Strike your Goals!');
+    $response->assertSee('sTracker turns everyday income and expenses into clear, simple insights');
+    $response->assertSee('Secure & private');
 });
 
 // Verify that a user can log in with correct credentials
