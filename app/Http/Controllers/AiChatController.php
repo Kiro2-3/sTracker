@@ -40,7 +40,7 @@ class AiChatController extends Controller
             $res = $client->post('https://api.openai.com/v1/chat/completions', [
                 'headers' => [
                     'Authorization' => 'Bearer '.$apiKey,
-                    'Content-Type'  => 'application/json',
+                    'Content-Type' => 'application/json',
                 ],
                 'json' => [
                     'model' => 'gpt-3.5-turbo',
