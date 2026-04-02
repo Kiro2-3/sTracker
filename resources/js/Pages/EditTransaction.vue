@@ -79,18 +79,13 @@
           <label class="label py-0" for="category">
             <span class="label-text font-semibold">Category</span>
           </label>
-          <!-- Category is fixed to "Salary" for income; expense types show the full category list -->
           <select
             id="category"
             class="select select-bordered w-full"
-            :class="form.type === 'income' ? 'opacity-60' : ''"
             v-model="form.category"
-            :disabled="form.type === 'income'"
           >
-            <option v-if="form.type === 'income'" value="Salary">Salary</option>
-            <template v-else>
-              <option v-for="cat in categories" :key="cat" :value="cat">{{ cat }}</option>
-            </template>
+            <option v-if="categories.length === 0" value="" disabled>Select a category</option>
+            <option v-for="cat in categories" :key="cat" :value="cat">{{ cat }}</option>
           </select>
           <InputError v-if="errors.category" :message="errors.category" />
         </div>

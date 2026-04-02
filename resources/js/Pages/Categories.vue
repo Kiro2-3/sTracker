@@ -89,30 +89,27 @@
                   :key="cat.id"
                 >
                   <td class="text-base-content/50 text-sm">{{ displayFrom + index }}</td>
-                  <td :class="['font-medium', cat.name === 'Salary' ? 'text-green-600' : 'text-base-content']">{{ cat.name }}</td>
+                  <td class="font-medium text-base-content">{{ cat.name }}</td>
                   <td class="text-right">
-                    <template v-if="cat.name !== 'Salary'">
-                      <button
-                        class="btn btn-ghost btn-xs text-primary mr-1"
-                        @click="openEditModal(cat)"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.862 3.487a2.25 2.25 0 013.182 3.182L7.5 19.213l-4.5 1.125 1.125-4.5L16.862 3.487z" />
-                        </svg>
-                        Edit
-                      </button>
-                      <button
-                        class="btn btn-ghost btn-xs text-error"
-                        :disabled="checkingDelete && pendingDeleteCategoryId === cat.id"
-                        @click="confirmDelete(cat)"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                        {{ checkingDelete && pendingDeleteCategoryId === cat.id ? 'Checking…' : 'Delete' }}
-                      </button>
-                    </template>
-                    <span v-else class="text-xs font-semibold text-green-600">Default</span>
+                    <button
+                      class="btn btn-ghost btn-xs text-primary mr-1"
+                      @click="openEditModal(cat)"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.862 3.487a2.25 2.25 0 013.182 3.182L7.5 19.213l-4.5 1.125 1.125-4.5L16.862 3.487z" />
+                      </svg>
+                      Edit
+                    </button>
+                    <button
+                      class="btn btn-ghost btn-xs text-error"
+                      :disabled="checkingDelete && pendingDeleteCategoryId === cat.id"
+                      @click="confirmDelete(cat)"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                      {{ checkingDelete && pendingDeleteCategoryId === cat.id ? 'Checking…' : 'Delete' }}
+                    </button>
                   </td>
                 </tr>
                 <tr v-if="tableCategories.length === 0">
@@ -220,18 +217,18 @@
       class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4"
       @click.self="closeDeleteModal"
     >
-      <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm p-6 relative">
-        <h2 class="text-lg font-bold text-gray-800 mb-2">Delete Category</h2>
-        <p v-if="checkingDelete" class="text-sm text-gray-600 mb-6">
-          Checking whether <span class="font-semibold text-gray-900">{{ categoryToDelete.name }}</span> has stored data...
+      <div class="bg-white text-black rounded-xl shadow-2xl w-full max-w-sm p-6 relative">
+        <h2 class="text-lg font-bold text-black mb-2">Delete Category</h2>
+        <p v-if="checkingDelete" class="text-sm text-black mb-6">
+          Checking whether <span class="font-semibold text-black">{{ categoryToDelete.name }}</span> has stored data...
         </p>
-        <p v-else-if="deleteTransactionCount > 0" class="text-sm text-gray-600 mb-4">
-          <span class="font-semibold text-gray-900">{{ categoryToDelete.name }}</span>
+        <p v-else-if="deleteTransactionCount > 0" class="text-sm text-black mb-4">
+          <span class="font-semibold text-black">{{ categoryToDelete.name }}</span>
           is used in {{ deleteTransactionCount }} {{ deleteTransactionCount === 1 ? 'transaction' : 'transactions' }}.
           Do you want to move that data to another category before deleting it?
         </p>
-        <p v-else class="text-sm text-gray-600 mb-6">
-          Are you sure you want to delete <span class="font-semibold text-gray-900">{{ categoryToDelete.name }}</span>?
+        <p v-else class="text-sm text-black mb-6">
+          Are you sure you want to delete <span class="font-semibold text-black">{{ categoryToDelete.name }}</span>?
         </p>
 
         <div v-if="!checkingDelete && deleteTransactionCount > 0" class="space-y-4 mb-6">

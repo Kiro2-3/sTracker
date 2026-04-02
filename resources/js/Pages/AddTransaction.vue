@@ -72,7 +72,6 @@
           <label class="label py-0" for="category">
             <span class="label-text font-semibold">Category</span>
             <button
-              v-if="form.type !== 'income'"
               type="button"
               class="label-text-alt link link-primary text-xs"
               @click="openCategoryModal"
@@ -81,14 +80,10 @@
           <select
             id="category"
             class="select select-bordered w-full"
-            :class="form.type === 'income' ? 'opacity-60' : ''"
             v-model="form.category"
-            :disabled="form.type === 'income'"
           >
-            <option v-if="form.type === 'income'" value="Salary">Salary</option>
-            <template v-else>
-              <option v-for="cat in expenseCategories" :key="cat" :value="cat">{{ cat }}</option>
-            </template>
+            <option v-if="categories.length === 0" value="" disabled>Select a category</option>
+            <option v-for="cat in categories" :key="cat" :value="cat">{{ cat }}</option>
           </select>
           <InputError v-if="errors.category" :message="errors.category" />
         </div>
@@ -162,12 +157,10 @@
         >
           <span class="text-sm font-medium text-base-content">{{ cat }}</span>
           <button
-            v-if="cat !== 'Salary'"
             type="button"
             class="btn btn-ghost btn-xs text-error"
             @click="deleteCategory(cat)"
           >Delete</button>
-          <span v-else class="badge badge-ghost badge-sm text-base-content/40">Default</span>
         </div>
       </div>
 
@@ -204,12 +197,16 @@ const emit = defineEmits(['close'])
 // Local copy of categories so the user can add/delete categories within the session without a full reload
 const categories = ref([...props.categories])
 
+function getDefaultCategory() {
+  return categories.value[0] ?? ''
+}
+
 // Form state with today's date pre-selected for convenience
 const form = ref({
   description: '',
   amount:      '',
   type:        'expense',
-  category:    'Food',
+  category:    getDefaultCategory(),
   entry_date:  new Date().toISOString().split('T')[0],
 })
 
@@ -219,17 +216,12 @@ const showCategoryModal = ref(false)
 const newCategory       = ref('')
 const categoryError     = ref('')
 
-// Exclude 'Salary' from expense category options since it is reserved for income type
-const expenseCategories = computed(() => categories.value.filter((cat) => cat !== 'Salary'))
-
-// Auto-update category when the type changes to keep form state consistent
-watch(() => form.value.type, (newType) => {
-  if (newType === 'income') {
-    form.value.category = 'Salary'                     // income is always categorised as Salary
-  } else if (newType === 'expense' && form.value.category === 'Salary') {
-    form.value.category = 'Food'                       // reset to a valid expense category
+// Keep the selected category valid when the available options change
+watch(categories, () => {
+  if (!categories.value.includes(form.value.category)) {
+    form.value.category = getDefaultCategory()
   }
-})
+}, { deep: true })
 
 function openCategoryModal() {
   newCategory.value     = ''
@@ -277,19 +269,13 @@ function saveCategory() {
 
 /**
  * Removes a category from the local list.
- * 'Salary' cannot be deleted because it is the mandatory income category.
- * If the deleted category was selected, falls back to the first available expense category.
+ * If the deleted category was selected, falls back to the first available category.
  */
 function deleteCategory(name) {
-  if (name === 'Salary') {
-    categoryError.value = 'The Salary category cannot be deleted.'
-    return
-  }
-
   categories.value = categories.value.filter((cat) => cat !== name)
 
   if (form.value.category === name) {
-    const fallback      = categories.value.find((cat) => cat !== 'Salary') || 'Food'
+    const fallback      = getDefaultCategory()
     form.value.category = fallback
   }
 
@@ -311,7 +297,7 @@ function submit() {
         description: '',
         amount:      '',
         type:        'expense',
-        category:    'Food',
+        category:    getDefaultCategory(),
         entry_date:  new Date().toISOString().split('T')[0],
       }
       errors.value     = {}
