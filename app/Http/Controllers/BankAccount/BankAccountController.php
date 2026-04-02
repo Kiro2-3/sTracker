@@ -2,17 +2,15 @@
 
 namespace App\Http\Controllers\BankAccount;
 
+use App\Models\BankAccount;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
-use Illuminate\Support\Facades\Auth;
-use App\Models\BankAccount;
 // recurring payments removed
-
 
 class BankAccountController
 {
-
     /**
      * Store a new bank account for the user.
      */
@@ -37,6 +35,7 @@ class BankAccountController
 
         return redirect()->route('bank-accounts.index')->with('success', 'Bank account added successfully.');
     }
+
     /**
      * Show the Bank Accounts page.
      */
@@ -53,7 +52,7 @@ class BankAccountController
             'auth' => ['user' => $user],
             'bankAccounts' => $bankAccounts,
             'totalBalance' => $totalBalance,
-                // 'upcomingRecurring' => $upcoming,
+            // 'upcomingRecurring' => $upcoming,
         ]);
     }
 

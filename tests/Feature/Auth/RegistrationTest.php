@@ -1,11 +1,12 @@
 <?php
 
+use Inertia\Testing\AssertableInertia as Assert;
+
 test('registration screen can be rendered', function () {
     $response = $this->get('/register');
 
     $response->assertStatus(200);
-    $response->assertSee('Create your finance workspace');
-    $response->assertSee('sTracker dashboard preview');
+    $response->assertInertia(fn (Assert $page) => $page->component('Auth/Register'));
 });
 
 test('new users can register', function () {

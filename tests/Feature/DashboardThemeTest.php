@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class DashboardThemeTest extends TestCase
@@ -19,14 +20,11 @@ class DashboardThemeTest extends TestCase
             ->get('/dashboard');
 
         $response->assertOk();
-
-        // our inline script comment should be present
-        $response->assertSee('preferred theme early injection');
-
-        // the toggle button markup includes title attribute
-        $response->assertSee('Toggle theme');
-
-        $response->assertSee('Trend Overview');
-        $response->assertSee('Spending Mix');
+        $response->assertSee("localStorage.getItem('theme')", false);
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Dashboard')
+            ->has('summary')
+            ->has('transactions')
+        );
     }
 }

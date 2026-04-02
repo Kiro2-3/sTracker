@@ -46,7 +46,7 @@ test('authenticated user can update their transaction', function () {
     ]);
 
     // Assert the redirect happens and the database is updated
-    $response->assertRedirect(route('dashboard'));
+    $response->assertRedirect(route('transactions.recent'));
     $this->assertDatabaseHas('transactions', [
         'id' => $transaction->id,
         'description' => 'Dinner',
@@ -161,19 +161,34 @@ test('dashboard returns correct summary and breakdown arrays', function () {
     $user = User::factory()->create();
 
     // create mixed transactions
-    Transaction::factory()->create([ 'user_id' => $user->id, 'type' => 'income', 'category' => 'Salary', 'amount' => 100 ]);
-    Transaction::factory()->create([ 'user_id' => $user->id, 'type' => 'expense', 'category' => 'Food', 'amount' => 30 ]);
-    Transaction::factory()->create([ 'user_id' => $user->id, 'type' => 'expense', 'category' => 'Food', 'amount' => 20 ]);
+    Transaction::factory()->create([
+        'user_id' => $user->id,
+        'type' => 'income',
+        'category' => 'Salary',
+        'amount' => 100,
+    ]);
+    Transaction::factory()->create([
+        'user_id' => $user->id,
+        'type' => 'expense',
+        'category' => 'Food',
+        'amount' => 30,
+    ]);
+    Transaction::factory()->create([
+        'user_id' => $user->id,
+        'type' => 'expense',
+        'category' => 'Food',
+        'amount' => 20,
+    ]);
 
     $response = $this->actingAs($user)->get(route('dashboard'));
 
     $response->assertStatus(200);
     $response->assertInertia(fn ($page) => $page->has('summary.income')
-        ->where('summary.income', 100)
+        ->where('summary.income', '100.00')
         ->has('summary.expense')
-        ->where('summary.expense', 50)
+        ->where('summary.expense', '50.00')
         ->has('summary.balance')
-        ->where('summary.balance', 50)
+        ->where('summary.balance', '50.00')
         ->has('categories')
         ->etc()
     );

@@ -11,9 +11,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
-use Illuminate\Support\Facades\Log;
 
 class TransactionController extends Controller
 {
@@ -126,6 +126,32 @@ class TransactionController extends Controller
         return Inertia::render('AddTransaction', [
             'categories' => $categories,
             'standalone' => true,
+        ]);
+    }
+
+    /**
+     * Display the edit transaction page.
+     */
+    public function show(Transaction $transaction): Response
+    {
+        if ($transaction->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $user = Auth::user();
+        $categories = $user->categories()->orderBy('name')->pluck('name');
+
+        if ($categories->isEmpty()) {
+            $categories = $user->transactions()
+                ->select('category')
+                ->distinct()
+                ->orderBy('category')
+                ->pluck('category');
+        }
+
+        return Inertia::render('EditTransaction', [
+            'transaction' => $transaction,
+            'categories' => $categories,
         ]);
     }
 

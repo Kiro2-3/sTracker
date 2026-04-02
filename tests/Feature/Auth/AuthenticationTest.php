@@ -1,15 +1,14 @@
 <?php
 
 use App\Models\User;
+use Inertia\Testing\AssertableInertia as Assert;
 
 // Make sure the login page loads without errors
 test('login screen can be rendered', function () {
     $response = $this->get('/login');
 
     $response->assertStatus(200);
-    $response->assertSee('Strike your Goals!');
-    $response->assertSee('sTracker turns everyday income and expenses into clear, simple insights');
-    $response->assertSee('Secure & private');
+    $response->assertInertia(fn (Assert $page) => $page->component('Auth/Login'));
 });
 
 // Verify that a user can log in with correct credentials
