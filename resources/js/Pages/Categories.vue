@@ -85,7 +85,7 @@
               </thead>
               <tbody>
                 <tr
-                  v-for="(cat, index) in paginatedCategories"
+                  v-for="(cat, index) in tableCategories"
                   :key="cat.id"
                 >
                   <td class="text-base-content/50 text-sm">{{ displayFrom + index }}</td>
@@ -115,7 +115,7 @@
                     <span v-else class="text-xs font-semibold text-green-600">Default</span>
                   </td>
                 </tr>
-                <tr v-if="paginatedCategories.length === 0">
+                <tr v-if="tableCategories.length === 0">
                   <td colspan="3" class="p-10 text-center text-base-content/50">No categories yet. Add one above.</td>
                 </tr>
               </tbody>
@@ -280,7 +280,7 @@
     <!-- AddTransaction Modal -->
     <AddTransaction
       v-if="showAddTransaction"
-      :categories="paginatedCategories.map(c => c.name)"
+      :categories="tableCategories.map(c => c.name)"
       @close="showAddTransaction = false"
     />
   </AuthenticatedLayout>
@@ -311,6 +311,8 @@ const paginatedCategories = computed(() => {
 
   return Array.isArray(categoriesProp.value) ? categoriesProp.value : []
 })
+const tableCategories = ref([])
+const tableTotalCount = ref(props.total_count)
 const showAddTransaction = ref(false)
 
 // ─── Add Category ─────────────────────────────────────────────────────────────
@@ -334,6 +336,22 @@ watch(
     }
   },
   { immediate: true, deep: true }
+)
+
+watch(
+  paginatedCategories,
+  (newCategories) => {
+    tableCategories.value = [...newCategories]
+  },
+  { immediate: true }
+)
+
+watch(
+  () => props.total_count,
+  (newTotal) => {
+    tableTotalCount.value = newTotal
+  },
+  { immediate: true }
 )
 
 function reloadCategories() {
@@ -376,6 +394,7 @@ function saveCategory() {
   axios.post(route('categories.store'), { name })
     .then(() => {
       showAddModal.value = false
+      tableTotalCount.value += 1
       reloadCategories()
     })
     .catch((err) => {
@@ -503,7 +522,16 @@ async function deleteCategory() {
       },
     })
 
+    tableCategories.value = tableCategories.value.filter((item) => item.id !== cat.id)
+    tableTotalCount.value = Math.max(0, tableTotalCount.value - 1)
+
     closeDeleteModal()
+
+    if (tableCategories.value.length === 0 && displayCurrentPage.value > 1) {
+      goToPage(displayCurrentPage.value - 1)
+      return
+    }
+
     reloadCategories()
   } catch (err) {
     deleteError.value = err.response?.data?.errors?.replacement_category_id?.[0]
@@ -541,17 +569,16 @@ const currentPage = computed(() => {
 })
 
 const hasMultiplePages = computed(() => {
+  if (tableTotalCount.value > 10) {
+    return true
+  }
+
   if (categoriesProp.value?.meta) {
     return categoriesProp.value.meta.last_page > 1
   }
 
-  // fallback using server-provided absolute count if available
-  if (props.total_count > 10) {
-    return true
-  }
-
   // final fallback: if the current visible list already has >= 10 items
-  return paginatedCategories.value.length >= 10
+  return tableTotalCount.value > 10 || tableCategories.value.length >= 10
 })
 
 const showDebug = computed(() => new URLSearchParams(window.location.search).get('debug') === '1')
@@ -565,15 +592,15 @@ const displayCurrentPage = computed(() => {
 })
 
 const displayLastPage = computed(() => {
+  if (tableTotalCount.value > 0) return Math.max(1, Math.ceil(tableTotalCount.value / 10))
   if (categoriesProp.value?.meta?.last_page) return categoriesProp.value.meta.last_page
-  if (props.total_count && props.total_count > 0) return Math.max(1, Math.ceil(props.total_count / 10))
-  return Math.max(1, Math.ceil((paginatedCategories.value?.length || 0) / 10))
+  return Math.max(1, Math.ceil((tableCategories.value?.length || 0) / 10))
 })
 
 const displayTotal = computed(() => {
+  if (tableTotalCount.value) return tableTotalCount.value
   if (categoriesProp.value?.meta?.total) return categoriesProp.value.meta.total
-  if (props.total_count) return props.total_count
-  return paginatedCategories.value?.length || 0
+  return tableCategories.value?.length || 0
 })
 function clearFilters() {
   filters.value = { search: '', sort_by: 'name', sort_dir: 'asc' }

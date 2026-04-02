@@ -137,7 +137,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="t in transactions.data" :key="t.id">
+                <tr v-for="t in visibleTransactions" :key="t.id">
                   <td class="w-12">
                     <input type="checkbox" class="checkbox" :value="t.id" v-model="selectedIds" />
                   </td>
@@ -203,7 +203,7 @@
                     </div>
                   </td>
                 </tr>
-                <tr v-if="!transactions.data || transactions.data.length === 0">
+                <tr v-if="visibleTransactions.length === 0">
                   <td colspan="6" class="p-10 text-center text-base-content/50">No transactions found yet.</td>
                 </tr>
               </tbody>
@@ -216,8 +216,8 @@
             class="flex items-center justify-between px-4 py-3 border-t border-base-200"
           >
             <span class="text-sm text-base-content/60">
-              Page {{ transactions.meta.current_page }} of {{ transactions.meta.last_page }}
-              &nbsp;·&nbsp; {{ transactions.meta.total }} total
+              Page {{ transactions.meta.current_page }} of {{ displayLastPage }}
+              &nbsp;·&nbsp; {{ displayTotal }} total
             </span>
             <div class="flex gap-2">
               <button
@@ -295,12 +295,21 @@ const transactions = props.transactions
 // visibleTransactions holds a local, reactive copy of the current page's data
 // so we can optimistically remove rows immediately when the user deletes them.
 const visibleTransactions = ref((transactions?.data) ? [...transactions.data] : [])
+const visibleTotal = ref(transactions?.meta?.total ?? 0)
 
 // Keep visibleTransactions in sync when the server sends new paginated data
 watch(
   () => transactions?.data,
   (newData) => {
     visibleTransactions.value = newData ? [...newData] : []
+  },
+  { immediate: true }
+)
+
+watch(
+  () => props.transactions?.meta?.total,
+  (newTotal) => {
+    visibleTotal.value = newTotal ?? 0
   },
   { immediate: true }
 )
@@ -361,7 +370,9 @@ function bulkDelete() {
 
   // optimistic removal from visibleTransactions for snappy UI
   const idsToRemove = Array.from(selectedIds.value)
+  const removedCount = visibleTransactions.value.filter(t => idsToRemove.includes(t.id)).length
   visibleTransactions.value = visibleTransactions.value.filter(t => !idsToRemove.includes(t.id))
+  visibleTotal.value = Math.max(0, visibleTotal.value - removedCount)
   selectedIds.value = []
 
   router.post(route('transactions.bulk-delete'), { ids: idsToRemove }, {
@@ -455,6 +466,8 @@ function confirmDelete() {
 
   // optimistic remove from UI
   visibleTransactions.value = visibleTransactions.value.filter(t => t.id !== id)
+  selectedIds.value = selectedIds.value.filter(selectedId => selectedId !== id)
+  visibleTotal.value = Math.max(0, visibleTotal.value - 1)
   closeDeleteModal()
 
   router.delete(route('transactions.destroy', id), {
@@ -465,6 +478,16 @@ function confirmDelete() {
     },
   })
 }
+
+const displayLastPage = computed(() => {
+  if (visibleTotal.value > 0) {
+    return Math.max(1, Math.ceil(visibleTotal.value / 10))
+  }
+
+  return transactions?.meta?.last_page ?? 1
+})
+
+const displayTotal = computed(() => visibleTotal.value)
 
 /**
  * Builds a CSV download URL from the active filter state and triggers a full
