@@ -1,7 +1,8 @@
 <?php
 
-use App\Models\User;
 use App\Models\Transaction;
+use App\Models\User;
+use Inertia\Testing\AssertableInertia as Assert;
 
 // Test to verify users can see the edit form for a transaction
 test('authenticated user can view the edit transaction form', function () {
@@ -20,8 +21,12 @@ test('authenticated user can view the edit transaction form', function () {
 
     // Assert the page loads successfully and contains the transaction data
     $response->assertStatus(200);
-    $response->assertSee('Edit Transaction');
-    $response->assertSee('Coffee');
+    $response->assertInertia(fn (Assert $page) => $page
+        ->component('EditTransaction')
+        ->where('transaction.description', 'Coffee')
+        ->where('transaction.id', $transaction->id)
+        ->has('categories')
+    );
 });
 
 // Test to verify users can update a transaction

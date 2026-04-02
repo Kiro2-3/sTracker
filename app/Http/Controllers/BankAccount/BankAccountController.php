@@ -26,8 +26,9 @@ class BankAccountController
         ]);
 
         $user = $request->user();
+
         // ensure balance exists
-        if (!isset($validated['balance'])) {
+        if (! isset($validated['balance'])) {
             $validated['balance'] = 0;
         }
 
