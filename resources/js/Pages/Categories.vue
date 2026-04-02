@@ -103,12 +103,13 @@
                       </button>
                       <button
                         class="btn btn-ghost btn-xs text-error"
+                        :disabled="checkingDelete && pendingDeleteCategoryId === cat.id"
                         @click="confirmDelete(cat)"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
-                        Delete
+                        {{ checkingDelete && pendingDeleteCategoryId === cat.id ? 'Checking…' : 'Delete' }}
                       </button>
                     </template>
                     <span v-else class="text-xs font-semibold text-green-600">Default</span>
@@ -217,17 +218,62 @@
     <div
       v-if="categoryToDelete"
       class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4"
-      @click.self="categoryToDelete = null"
+      @click.self="closeDeleteModal"
     >
       <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm p-6 relative">
         <h2 class="text-lg font-bold text-gray-800 mb-2">Delete Category</h2>
-        <p class="text-sm text-gray-600 mb-6">
-          Are you sure you want to delete <span class="font-semibold text-gray-900">{{ categoryToDelete.name }}</span>?
-          Existing transactions using this category will keep it as a label.
+        <p v-if="checkingDelete" class="text-sm text-gray-600 mb-6">
+          Checking whether <span class="font-semibold text-gray-900">{{ categoryToDelete.name }}</span> has stored data...
         </p>
+        <p v-else-if="deleteTransactionCount > 0" class="text-sm text-gray-600 mb-4">
+          <span class="font-semibold text-gray-900">{{ categoryToDelete.name }}</span>
+          is used in {{ deleteTransactionCount }} {{ deleteTransactionCount === 1 ? 'transaction' : 'transactions' }}.
+          Do you want to move that data to another category before deleting it?
+        </p>
+        <p v-else class="text-sm text-gray-600 mb-6">
+          Are you sure you want to delete <span class="font-semibold text-gray-900">{{ categoryToDelete.name }}</span>?
+        </p>
+
+        <div v-if="!checkingDelete && deleteTransactionCount > 0" class="space-y-4 mb-6">
+          <label class="form-control w-full gap-2">
+            <span class="label-text font-semibold text-base-content">Move data to</span>
+            <select
+              v-model="replacementCategoryId"
+              class="select select-bordered w-full"
+              :disabled="deleteReplacementOptions.length === 0 || deletingCategory"
+            >
+              <option :value="null">Continue delete without moving</option>
+              <option
+                v-for="option in deleteReplacementOptions"
+                :key="option.id"
+                :value="option.id"
+              >
+                {{ option.name }}
+              </option>
+            </select>
+          </label>
+
+          <p v-if="deleteReplacementOptions.length === 0" class="text-xs text-amber-600">
+            No other category is available. You can only continue deleting this category.
+          </p>
+        </div>
+
+        <p v-if="deleteError" class="mb-4 text-sm text-error">{{ deleteError }}</p>
+
         <div class="flex justify-end gap-2">
-          <button type="button" class="btn btn-ghost btn-sm" @click="categoryToDelete = null">Cancel</button>
-          <button type="button" class="btn btn-error btn-sm text-white" @click="deleteCategory">Delete</button>
+          <button type="button" class="btn btn-ghost btn-sm" :disabled="deletingCategory || checkingDelete" @click="closeDeleteModal">Cancel</button>
+          <button
+            v-if="!checkingDelete && deleteTransactionCount > 0 && replacementCategoryId"
+            type="button"
+            class="btn btn-primary btn-sm text-white"
+            :disabled="deletingCategory"
+            @click="deleteCategory"
+          >
+            {{ deletingCategory ? 'Moving…' : 'Move & Delete' }}
+          </button>
+          <button type="button" class="btn btn-error btn-sm text-white" :disabled="deletingCategory || checkingDelete" @click="deleteCategory">
+            {{ deletingCategory ? 'Deleting…' : 'Delete' }}
+          </button>
         </div>
       </div>
     </div>
@@ -398,27 +444,74 @@ function saveEdit() {
 
 // ─── Delete Category ──────────────────────────────────────────────────────────
 const categoryToDelete = ref(null)   // set to the target category to open the confirm modal
+const deleteTransactionCount = ref(0)
+const deleteReplacementOptions = ref([])
+const replacementCategoryId = ref(null)
+const deleteError = ref('')
+const checkingDelete = ref(false)
+const deletingCategory = ref(false)
+const pendingDeleteCategoryId = ref(null)
 
-function confirmDelete(cat) {
+async function confirmDelete(cat) {
   categoryToDelete.value = cat
+  deleteTransactionCount.value = 0
+  deleteReplacementOptions.value = []
+  replacementCategoryId.value = null
+  checkingDelete.value = true
+  pendingDeleteCategoryId.value = cat.id
+  deleteError.value = ''
+
+  try {
+    const { data } = await axios.get(route('categories.usage', cat.id))
+
+    deleteTransactionCount.value = data.transaction_count ?? 0
+    deleteReplacementOptions.value = data.replacement_options ?? []
+    replacementCategoryId.value = null
+  } catch (err) {
+    deleteError.value = err.response?.data?.message ?? 'Unable to check category usage.'
+  } finally {
+    checkingDelete.value = false
+    pendingDeleteCategoryId.value = null
+  }
+}
+
+function closeDeleteModal() {
+  categoryToDelete.value = null
+  deleteTransactionCount.value = 0
+  deleteReplacementOptions.value = []
+  replacementCategoryId.value = null
+  deleteError.value = ''
 }
 
 /**
  * Deletes the confirmed category via Inertia DELETE.
  * Existing transactions keep the category string as a plain label even after deletion.
  */
-function deleteCategory() {
+async function deleteCategory() {
   const cat = categoryToDelete.value
   if (!cat) {
     return
   }
 
-  categoryToDelete.value = null  // close the confirmation modal before the request
+  deletingCategory.value = true
+  deleteError.value = ''
 
-  router.delete(route('categories.destroy', cat.id), {
-    preserveScroll: true,
-    only: ['categories', 'filters', 'total_count', 'flash'],
-  })
+  try {
+    await axios.delete(route('categories.destroy', cat.id), {
+      data: {
+        replacement_category_id: replacementCategoryId.value,
+      },
+    })
+
+    closeDeleteModal()
+    reloadCategories()
+  } catch (err) {
+    deleteError.value = err.response?.data?.errors?.replacement_category_id?.[0]
+      ?? err.response?.data?.message
+      ?? 'Unable to delete category.'
+  } finally {
+    deletingCategory.value = false
+  }
 }
 
 // --- Filters (server-driven) -------------------------------------------------

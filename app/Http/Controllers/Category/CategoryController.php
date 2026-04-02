@@ -7,8 +7,10 @@ use App\Http\Requests\Category\StoreCategoryRequest;
 use App\Http\Requests\Category\UpdateCategoryRequest;
 use App\Models\Category;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -98,18 +100,81 @@ class CategoryController extends Controller
     }
 
     /**
-     * Delete an existing category.
-     *
-     * @param  Category  $category  the category to delete
+     * Return usage information for a category before deletion.
      */
-    public function destroy(Category $category): RedirectResponse
+    public function usage(Category $category): JsonResponse
     {
         if ($category->user_id !== Auth::id()) {
             abort(403);
         }
 
-        $category->delete();
+        $user = Auth::user();
+        $transactionCount = $user->transactions()
+            ->where('category', $category->name)
+            ->count();
 
-        return back()->with('success', 'Category deleted.');
+        $replacementOptions = $user->categories()
+            ->whereKeyNot($category->id)
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
+        return response()->json([
+            'transaction_count' => $transactionCount,
+            'replacement_options' => $replacementOptions,
+        ]);
+    }
+
+    /**
+     * Delete an existing category.
+     *
+     * @param  Category  $category  the category to delete
+     */
+    public function destroy(Request $request, Category $category): JsonResponse
+    {
+        if ($category->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'replacement_category_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('categories', 'id')->where(fn ($query) => $query->where('user_id', Auth::id())),
+            ],
+        ]);
+
+        $replacementCategoryId = $validated['replacement_category_id'] ?? null;
+
+        if ((int) $replacementCategoryId === $category->id) {
+            return response()->json([
+                'message' => 'Please choose a different category to move the data into.',
+                'errors' => [
+                    'replacement_category_id' => ['Please choose a different category.'],
+                ],
+            ], 422);
+        }
+
+        $user = Auth::user();
+        $transactionCount = $user->transactions()
+            ->where('category', $category->name)
+            ->count();
+
+        DB::transaction(function () use ($user, $category, $replacementCategoryId, $transactionCount): void {
+            if ($replacementCategoryId && $transactionCount > 0) {
+                $replacementCategory = $user->categories()->findOrFail($replacementCategoryId);
+
+                $user->transactions()
+                    ->where('category', $category->name)
+                    ->update(['category' => $replacementCategory->name]);
+            }
+
+            $category->delete();
+        });
+
+        return response()->json([
+            'message' => $replacementCategoryId && $transactionCount > 0
+                ? 'Category deleted and existing data moved successfully.'
+                : 'Category deleted successfully.',
+        ]);
     }
 }
