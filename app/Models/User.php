@@ -10,10 +10,6 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    public function bankAccounts(): HasMany
-    {
-        return $this->hasMany(BankAccount::class);
-    }
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
@@ -49,6 +45,11 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function bankAccounts(): HasMany
+    {
+        return $this->hasMany(BankAccount::class);
     }
 
     public function transactions(): HasMany

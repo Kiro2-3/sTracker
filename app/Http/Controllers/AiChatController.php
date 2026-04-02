@@ -39,7 +39,7 @@ class AiChatController extends Controller
             $client = new Client;
             $res = $client->post('https://api.openai.com/v1/chat/completions', [
                 'headers' => [
-                    'Authorization' => 'Bearer ' . $apiKey,
+                    'Authorization' => 'Bearer '.$apiKey,
                     'Content-Type'  => 'application/json',
                 ],
                 'json' => [
@@ -58,7 +58,7 @@ class AiChatController extends Controller
 
             return response()->json(['message' => $reply]);
         } catch (\Exception $e) {
-            Log::error('AI chat error: ' . $e->getMessage());
+            Log::error('AI chat error: '.$e->getMessage());
 
             return response()->json(['message' => 'Sorry, I could not reach the AI service.'], 500);
         }
