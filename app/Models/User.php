@@ -8,8 +8,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+/**
+ * Main authenticated user model.
+ *
+ * This model owns the financial records that are shown throughout the app.
+ */
 class User extends Authenticatable
 {
+
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
@@ -42,21 +48,32 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
+            // Store verification timestamps as Carbon instances for date handling.
             'email_verified_at' => 'datetime',
+            // Automatically hash plain-text passwords before saving them.
             'password' => 'hashed',
         ];
     }
 
+    /**
+     * Get all bank accounts created by the user.
+     */
     public function bankAccounts(): HasMany
     {
         return $this->hasMany(BankAccount::class);
     }
 
+    /**
+     * Get all income and expense transactions recorded by the user.
+     */
     public function transactions(): HasMany
     {
         return $this->hasMany(Transaction::class);
     }
 
+    /**
+     * Get the custom categories available to the user.
+     */
     public function categories(): HasMany
     {
         return $this->hasMany(Category::class);

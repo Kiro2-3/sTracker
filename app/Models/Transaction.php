@@ -6,11 +6,16 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * Stores a single money movement entry for a user.
+ */
 class Transaction extends Model
 {
     use HasFactory;
 
     /**
+     * Fields that can be safely filled from validated request data.
+     *
      * @var array<int, string>
      */
     protected $fillable = [
@@ -22,6 +27,9 @@ class Transaction extends Model
         'entry_date',
     ];
 
+    /**
+     * Get the owner of this transaction.
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
