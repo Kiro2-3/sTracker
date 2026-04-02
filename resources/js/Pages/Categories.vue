@@ -85,10 +85,10 @@
               </thead>
               <tbody>
                 <tr
-                  v-for="(cat, index) in localCategories"
+                  v-for="(cat, index) in paginatedCategories"
                   :key="cat.id"
                 >
-                  <td class="text-base-content/50 text-sm">{{ index + 1 }}</td>
+                  <td class="text-base-content/50 text-sm">{{ displayFrom + index }}</td>
                   <td :class="['font-medium', cat.name === 'Salary' ? 'text-green-600' : 'text-base-content']">{{ cat.name }}</td>
                   <td class="text-right">
                     <template v-if="cat.name !== 'Salary'">
@@ -114,7 +114,7 @@
                     <span v-else class="text-xs font-semibold text-green-600">Default</span>
                   </td>
                 </tr>
-                <tr v-if="localCategories.length === 0">
+                <tr v-if="paginatedCategories.length === 0">
                   <td colspan="3" class="p-10 text-center text-base-content/50">No categories yet. Add one above.</td>
                 </tr>
               </tbody>
@@ -234,7 +234,7 @@
     <!-- AddTransaction Modal -->
     <AddTransaction
       v-if="showAddTransaction"
-      :categories="localCategories.map(c => c.name)"
+      :categories="paginatedCategories.map(c => c.name)"
       @close="showAddTransaction = false"
     />
   </AuthenticatedLayout>
@@ -257,19 +257,14 @@ const props = defineProps({
   total_count: { type: Number, default: 0 },
 })
 
-const categoriesProp = props.categories
+const categoriesProp = computed(() => props.categories)
+const paginatedCategories = computed(() => {
+  if (Array.isArray(categoriesProp.value?.data)) {
+    return categoriesProp.value.data
+  }
 
-// Local copy of the categories list; if server provides a paginator use its `data` page
-const localCategories = ref(props.categories?.data ? [...props.categories.data] : [...(props.categories || [])])
-
-// keep localCategories in sync when server sends new data (pagination/search)
-watch(
-  () => props.categories,
-  (newVal) => {
-    localCategories.value = newVal?.data ? [...newVal.data] : [...(newVal || [])]
-  },
-  { immediate: true }
-)
+  return Array.isArray(categoriesProp.value) ? categoriesProp.value : []
+})
 const showAddTransaction = ref(false)
 
 // ─── Add Category ─────────────────────────────────────────────────────────────
@@ -277,6 +272,30 @@ const showAddModal    = ref(false)
 const newCategoryName = ref('')
 const addError        = ref('')
 const saving          = ref(false)   // disables the Save button while the axios request is in-flight
+const filters = ref({
+  search:   '',
+  sort_by:  'name',
+  sort_dir: 'asc',
+})
+
+watch(
+  () => props.filters,
+  (newFilters) => {
+    filters.value = {
+      search: newFilters?.search || '',
+      sort_by: newFilters?.sort_by || 'name',
+      sort_dir: newFilters?.sort_dir || 'asc',
+    }
+  },
+  { immediate: true, deep: true }
+)
+
+function reloadCategories() {
+  router.reload({
+    only: ['categories', 'filters', 'total_count', 'flash'],
+    preserveScroll: true,
+  })
+}
 
 function openAddModal() {
   newCategoryName.value = ''
@@ -300,7 +319,7 @@ function saveCategory() {
     return
   }
 
-  if (localCategories.value.some((c) => c.name.toLowerCase() === name.toLowerCase())) {
+  if (paginatedCategories.value.some((c) => c.name.toLowerCase() === name.toLowerCase())) {
     addError.value = 'This category already exists.'
     return
   }
@@ -309,10 +328,9 @@ function saveCategory() {
   addError.value = ''
 
   axios.post(route('categories.store'), { name })
-    .then(({ data }) => {
-      localCategories.value.push({ id: data.id, name: data.name })
-      localCategories.value.sort((a, b) => a.name.localeCompare(b.name))
+    .then(() => {
       showAddModal.value = false
+      reloadCategories()
     })
     .catch((err) => {
       addError.value = err.response?.data?.errors?.name?.[0] ?? 'Unable to save category.'
@@ -354,7 +372,7 @@ function saveEdit() {
   }
 
   if (
-    localCategories.value.some(
+    paginatedCategories.value.some(
       (c) => c.id !== categoryToEdit.value.id && c.name.toLowerCase() === name.toLowerCase(),
     )
   ) {
@@ -366,13 +384,9 @@ function saveEdit() {
   editError.value = ''
 
   axios.put(route('categories.update', categoryToEdit.value.id), { name })
-    .then(({ data }) => {
-      const cat = localCategories.value.find((c) => c.id === data.id)
-      if (cat) {
-        cat.name = data.name
-      }
-      localCategories.value.sort((a, b) => a.name.localeCompare(b.name))
+    .then(() => {
       showEditModal.value = false
+      reloadCategories()
     })
     .catch((err) => {
       editError.value = err.response?.data?.errors?.name?.[0] ?? 'Unable to update category.'
@@ -403,22 +417,14 @@ function deleteCategory() {
 
   router.delete(route('categories.destroy', cat.id), {
     preserveScroll: true,
-    onSuccess: () => {
-      // after delete, remove from local list if present
-      localCategories.value = localCategories.value.filter(c => c.id !== cat.id)
-    }
+    only: ['categories', 'filters', 'total_count', 'flash'],
   })
 }
 
 // --- Filters (server-driven) -------------------------------------------------
-const filters = ref({
-  search:   props.filters?.search || '',
-  sort_by:  props.filters?.sort_by || 'name',
-  sort_dir: props.filters?.sort_dir || 'asc',
-})
-
 function applyFilters() {
-  router.get(route('categories.index'), filters.value, {
+  router.get(route('categories.index'), { ...filters.value, page: 1 }, {
+    only: ['categories', 'filters', 'total_count', 'flash'],
     preserveState: true,
     preserveScroll: true,
     replace: true,
@@ -428,8 +434,8 @@ function applyFilters() {
 function goToPage(page) {
   const params = { ...filters.value, page }
   router.get(route('categories.index'), params, {
-    // don't preserve component state so server paginator metadata replaces props
-    preserveState: false,
+    only: ['categories', 'filters', 'total_count', 'flash'],
+    preserveState: true,
     preserveScroll: true,
   })
 }
@@ -442,40 +448,47 @@ const currentPage = computed(() => {
 })
 
 const hasMultiplePages = computed(() => {
-  if (categoriesProp && categoriesProp.meta) {
-    return categoriesProp.meta.last_page > 1
+  if (categoriesProp.value?.meta) {
+    return categoriesProp.value.meta.last_page > 1
   }
+
   // fallback using server-provided absolute count if available
-  const totalCount = props.total_count || 0
-  if (totalCount && totalCount > 10) {
+  if (props.total_count > 10) {
     return true
   }
 
   // final fallback: if the current visible list already has >= 10 items
-  return Array.isArray(localCategories.value) && localCategories.value.length >= 10
+  return paginatedCategories.value.length >= 10
 })
 
 const showDebug = computed(() => new URLSearchParams(window.location.search).get('debug') === '1')
 
-const debugData = computed(() => JSON.stringify({ categories: categoriesProp, total_count: totalCount }, null, 2))
+const debugData = computed(() => JSON.stringify({ categories: categoriesProp.value, total_count: props.total_count }, null, 2))
+
+const displayFrom = computed(() => categoriesProp.value?.meta?.from ?? 1)
 
 const displayCurrentPage = computed(() => {
-  return categoriesProp?.meta?.current_page ?? currentPage.value
+  return categoriesProp.value?.meta?.current_page ?? currentPage.value
 })
 
 const displayLastPage = computed(() => {
-  if (categoriesProp?.meta?.last_page) return categoriesProp.meta.last_page
+  if (categoriesProp.value?.meta?.last_page) return categoriesProp.value.meta.last_page
   if (props.total_count && props.total_count > 0) return Math.max(1, Math.ceil(props.total_count / 10))
-  return Math.max(1, Math.ceil((localCategories.value?.length || 0) / 10))
+  return Math.max(1, Math.ceil((paginatedCategories.value?.length || 0) / 10))
 })
 
 const displayTotal = computed(() => {
-  if (categoriesProp?.meta?.total) return categoriesProp.meta.total
+  if (categoriesProp.value?.meta?.total) return categoriesProp.value.meta.total
   if (props.total_count) return props.total_count
-  return localCategories.value?.length || 0
+  return paginatedCategories.value?.length || 0
 })
 function clearFilters() {
   filters.value = { search: '', sort_by: 'name', sort_dir: 'asc' }
-  router.get(route('categories.index'), {}, { preserveState: true, replace: true })
+  router.get(route('categories.index'), {}, {
+    only: ['categories', 'filters', 'total_count', 'flash'],
+    preserveState: true,
+    preserveScroll: true,
+    replace: true,
+  })
 }
 </script>

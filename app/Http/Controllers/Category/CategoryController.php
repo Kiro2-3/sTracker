@@ -66,7 +66,7 @@ class CategoryController extends Controller
     {
         $user = Auth::user();
 
-        $category = Category::firstOrCreate([
+        $category = Category::create([
             'user_id' => $user->id,
             'name' => $request->validated('name'),
         ]);
@@ -110,6 +110,6 @@ class CategoryController extends Controller
 
         $category->delete();
 
-        return redirect()->route('categories.index')->with('success', 'Category deleted.');
+        return back()->with('success', 'Category deleted.');
     }
 }
