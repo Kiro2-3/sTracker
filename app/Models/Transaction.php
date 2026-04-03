@@ -25,6 +25,7 @@ class Transaction extends Model
         'type',
         'category',
         'entry_date',
+        'bank_account_id',
     ];
 
     /**
@@ -33,5 +34,13 @@ class Transaction extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * The bank account this transaction is linked to (optional).
+     */
+    public function bankAccount(): BelongsTo
+    {
+        return $this->belongsTo(BankAccount::class);
     }
 }

@@ -47,13 +47,21 @@ class BankAccountController
         $bankAccounts = $user->bankAccounts()->latest()->paginate(3);
         $totalBalance = (float) $user->bankAccounts()->sum('balance');
 
-        // recurring payments removed from index
+        // Categories for the quick-transaction form
+        $categories = $user->categories()->orderBy('name')->pluck('name');
+        if ($categories->isEmpty()) {
+            $categories = $user->transactions()
+                ->select('category')
+                ->distinct()
+                ->orderBy('category')
+                ->pluck('category');
+        }
 
         return Inertia::render('BankAccounts', [
-            'auth' => ['user' => $user],
+            'auth'         => ['user' => $user],
             'bankAccounts' => $bankAccounts,
             'totalBalance' => $totalBalance,
-            // 'upcomingRecurring' => $upcoming,
+            'categories'   => $categories,
         ]);
     }
 

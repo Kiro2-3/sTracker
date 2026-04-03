@@ -205,14 +205,31 @@ class TransactionController extends Controller
         $user = Auth::user();
         $validated = $request->validated();
 
-        $user->transactions()->create($validated);
+        $transaction = $user->transactions()->create($validated);
+
+        // When the transaction is linked to a bank account, adjust the account balance.
+        if (!empty($validated['bank_account_id'])) {
+            $bankAccount = $user->bankAccounts()->find($validated['bank_account_id']);
+            if ($bankAccount) {
+                $delta = (float) $validated['amount'];
+                if ($validated['type'] === 'income') {
+                    $bankAccount->increment('balance', $delta);
+                } else {
+                    $bankAccount->decrement('balance', $delta);
+                }
+            }
+        }
 
         Category::firstOrCreate([
             'user_id' => $user->id,
             'name' => $validated['category'],
         ]);
 
-        return redirect()->back(302, [], route('dashboard'))->with('success', 'Successfully added transaction');
+        $redirectBack = !empty($validated['bank_account_id'])
+            ? route('bank-accounts.index')
+            : route('dashboard');
+
+        return redirect()->back(302, [], $redirectBack)->with('success', 'Successfully added transaction');
     }
 
     /**
