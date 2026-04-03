@@ -105,6 +105,76 @@ const showingNavigationDropdown = ref(false)
 let toastCounter = 0
 const currentToast = ref(null)
 let flashTimeout = null
+let toastAudioContext = null
+
+function playToastSound(type) {
+  if (typeof window === 'undefined') return
+
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext
+  if (!AudioContextClass) return
+
+  try {
+    if (!toastAudioContext) {
+      toastAudioContext = new AudioContextClass()
+    }
+
+    if (toastAudioContext.state === 'suspended') {
+      toastAudioContext.resume().catch(() => {})
+    }
+
+    const now = toastAudioContext.currentTime
+    const masterGain = toastAudioContext.createGain()
+    masterGain.connect(toastAudioContext.destination)
+    masterGain.gain.setValueAtTime(0.0001, now)
+    masterGain.gain.exponentialRampToValueAtTime(0.08, now + 0.02)
+    masterGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35)
+
+    const oscillatorA = toastAudioContext.createOscillator()
+    const oscillatorB = toastAudioContext.createOscillator()
+
+    oscillatorA.type = type === 'success' ? 'sine' : 'triangle'
+    oscillatorB.type = type === 'success' ? 'triangle' : 'sawtooth'
+
+    if (type === 'success') {
+      oscillatorA.frequency.setValueAtTime(784, now)
+      oscillatorA.frequency.exponentialRampToValueAtTime(1046.5, now + 0.18)
+      oscillatorB.frequency.setValueAtTime(1174.7, now + 0.05)
+      oscillatorB.frequency.exponentialRampToValueAtTime(1318.5, now + 0.2)
+    } else {
+      oscillatorA.frequency.setValueAtTime(392, now)
+      oscillatorA.frequency.exponentialRampToValueAtTime(311.1, now + 0.22)
+      oscillatorB.frequency.setValueAtTime(261.6, now)
+      oscillatorB.frequency.exponentialRampToValueAtTime(196, now + 0.25)
+    }
+
+    oscillatorA.connect(masterGain)
+    oscillatorB.connect(masterGain)
+    oscillatorA.start(now)
+    oscillatorB.start(now + 0.03)
+    oscillatorA.stop(now + 0.25)
+    oscillatorB.stop(now + 0.32)
+  } catch (e) {
+    // Ignore audio failures and still show the toast.
+  }
+}
+
+async function showToast(message, type) {
+  if (!message || !type) return
+
+  if (flashTimeout) clearTimeout(flashTimeout)
+  currentToast.value = null
+  await nextTick()
+  currentToast.value = { id: ++toastCounter, type, message }
+  playToastSound(type)
+  flashTimeout = setTimeout(() => { currentToast.value = null }, 4000)
+}
+
+function handleCustomToast(event) {
+  const message = event?.detail?.message
+  const type = event?.detail?.type || 'success'
+
+  showToast(message, type)
+}
 
 /**
  * Watches the actual flash message strings (not the container object) so it
@@ -120,11 +190,7 @@ watch(
     const type    = success ? 'success' : error ? 'error' : null
     if (!message) return
 
-    if (flashTimeout) clearTimeout(flashTimeout)
-    currentToast.value = null       // clear first so transition re-enters
-    await nextTick()
-    currentToast.value = { id: ++toastCounter, type, message }
-    flashTimeout = setTimeout(() => { currentToast.value = null }, 4000)
+    await showToast(message, type)
   },
   { immediate: true },
 )
@@ -132,6 +198,7 @@ watch(
 // Clean up the timer to prevent state updates after the component is destroyed
 onUnmounted(() => {
   if (flashTimeout) clearTimeout(flashTimeout)
+  window.removeEventListener('app-toast', handleCustomToast)
 })
 
 // read persisted "Hide Stracky" preference synchronously to avoid UI flash
@@ -140,6 +207,8 @@ try { initialHide = localStorage.getItem('hide_stracky') === '1' } catch (e) {}
 
 // Initialize theme early on layout mount to avoid FOUC between light/dark
 onMounted(() => {
+  window.addEventListener('app-toast', handleCustomToast)
+
   try {
     const stored = localStorage.getItem('theme')
     if (stored === 'dark') {
