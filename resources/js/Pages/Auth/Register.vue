@@ -45,19 +45,19 @@
 
         <section class="mt-10 px-3">
           <div class="grid gap-4 md:grid-cols-3">
-            <div class="card bg-base-100 shadow-sm border border-base-1600 bg-gray-300">
+            <div class="card shadow-sm border border-base-1600 bg-gray-300">
               <div class="card-body py-4 px-5">
                 <h3 class="card-title text-sm font-semibold mb-1 text-base-content">Secure & private</h3>
                 <p class="text-xs text-base-content/90">Your data is encrypted in transit and stored safely so only you can see your numbers.</p>
               </div>
             </div>
-            <div class="card bg-base-100 shadow-sm border border-base-1600 bg-gray-300">
+            <div class="card shadow-sm border border-base-1600 bg-gray-300">
               <div class="card-body py-4 px-5">
                 <h3 class="card-title text-sm font-semibold mb-1 text-base-content">Works across devices</h3>
                 <p class="text-xs text-base-content/90">Log in from desktop or mobile and pick up exactly where you left off.</p>
               </div>
             </div>
-            <div class="card bg-base-100 shadow-sm border border-base-1600 bg-gray-300">
+            <div class="card shadow-sm border border-base-1600 bg-gray-300">
               <div class="card-body py-4 px-5">
                 <h3 class="card-title text-sm font-semibold mb-1 text-base-content">Export when you need</h3>
                 <p class="text-xs text-base-content/90">Download your transactions for sharing with your accountant or for backup.</p>
