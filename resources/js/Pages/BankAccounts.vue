@@ -10,7 +10,7 @@
           <button
             @click="openAddModal"
             aria-label="Add Bank Account"
-            class="rounded-full md:rounded shadow-lg px-4 py-3 text-white border-0 bg-gradient-to-r from-purple-600 to-amber-300 hover:from-purple-700 hover:to-amber-400"
+            class="btn btn-primary shadow-lg text-white"
           >
             Add Bank Account
           </button>
@@ -111,8 +111,8 @@
                 <ul class="inline-flex items-center -space-x-px">
                   <li v-for="link in props.bankAccounts.links" :key="link.label">
                     <button
-                      class="px-3 py-1 border rounded-l-md bg-base-100 hover:bg-base-200"
-                      :class="{ 'bg-primary text-white': link.active, 'opacity-50 cursor-not-allowed': !link.url }"
+                      class="px-3 py-1 border rounded-l-md bg-base-100 hover:bg-base-200 transition-colors"
+                      :class="{ 'bg-primary border-primary text-white hover:bg-primary': link.active, 'opacity-50 cursor-not-allowed': !link.url }"
                       @click="goToPage(link.url)"
                       v-html="link.label"
                       :disabled="!link.url"
@@ -158,10 +158,10 @@
                     <input v-model.number="editAccount.balance" type="number" step="0.01" class="input input-bordered w-full" />
                   </div>
                   <div class="mt-6 flex justify-end gap-2">
-                    <button type="button" @click="confirmDelete" class="btn btn-error">Delete</button>
+                    <button type="button" @click="confirmDelete" class="btn btn-error text-white">Delete</button>
                     <div class="flex-1"></div>
-                    <button type="button" @click="closeModal" class="btn">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="button" @click="closeModal" class="btn btn-ghost">Cancel</button>
+                    <button type="submit" class="btn btn-primary text-white">Save</button>
                   </div>
                 </form>
               </div>
@@ -202,8 +202,8 @@
                     </label>
                   </div>
                   <div class="mt-6 flex justify-end gap-2">
-                    <button type="button" @click="closeAddModal" class="btn">Cancel</button>
-                    <button type="submit" class="text-white border-0 px-4 py-2 rounded bg-gradient-to-r from-purple-600 to-amber-300 hover:from-purple-700 hover:to-amber-400">Save</button>
+                    <button type="button" @click="closeAddModal" class="btn btn-ghost">Cancel</button>
+                    <button type="submit" class="btn btn-primary text-white">Save</button>
                   </div>
                 </form>
               </div>
