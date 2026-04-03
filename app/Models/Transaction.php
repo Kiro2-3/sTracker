@@ -5,6 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+// BankAccount is in the same namespace so it resolves without a full import,
+// but we reference it here to make the IDE happy.
+
 
 /**
  * Stores a single money movement entry for a user.
