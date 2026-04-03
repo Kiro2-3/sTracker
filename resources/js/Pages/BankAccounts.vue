@@ -133,6 +133,9 @@
                 <button @click="closeModal" class="absolute top-2 right-2 text-base-content/60 hover:text-base-content text-xl">&times;</button>
                 <h2 class="text-2xl font-bold mb-4">Edit Bank Account</h2>
                 <form @submit.prevent="saveEdit" v-if="editAccount">
+                  <p v-if="editFormError" class="mb-3 rounded-lg border border-error/30 bg-error/10 px-3 py-2 text-sm text-error">
+                    {{ editFormError }}
+                  </p>
                   <div class="mb-2">
                     <label class="font-semibold">Bank Name:</label>
                     <input v-model="editAccount.bank_name" class="input input-bordered w-full" required />
@@ -175,6 +178,9 @@
             <button @click="closeAddModal" class="absolute top-3 right-3 text-base-content/60 hover:text-base-content text-xl">&times;</button>
                 <h2 class="text-2xl font-bold mb-4">Add Bank Account</h2>
                 <form @submit.prevent="submitBankAccount">
+                  <p v-if="addFormError" class="mb-4 rounded-lg border border-error/30 bg-error/10 px-3 py-2 text-sm text-error">
+                    {{ addFormError }}
+                  </p>
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <label class="form-control w-full gap-2">
                       <span class="label-text font-semibold text-base-content">Bank Name</span>
@@ -223,6 +229,7 @@ import { Head, router } from '@inertiajs/vue3'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 import AppSidebar from '@/Components/AppSidebar.vue'
 import Chart from 'chart.js/auto'
+import { showErrorToast } from '@/utils/toast'
 
 const props = defineProps({
   auth: Object,
@@ -239,6 +246,10 @@ const form = ref({
   notes: '',
   balance: 0,
 })
+
+const blankFormError = 'Error unable to proceed blank.'
+const addFormError = ref('')
+const editFormError = ref('')
 
 // Visibility controls: toggle totals and per-account amounts
 const showTotals = ref(true)
@@ -265,10 +276,12 @@ const showAddModal = ref(false)
 function openAddModal() {
   // reset form and open modal
   form.value = { bank_name: '', account_number: '', account_name: '', branch: '', notes: '', balance: 0 }
+  addFormError.value = ''
   showAddModal.value = true
 }
 
 function closeAddModal() {
+  addFormError.value = ''
   showAddModal.value = false
 }
 
@@ -419,7 +432,15 @@ function handleAccountClick(account) {
   selectedAccount.value = account
   // Deep copy to avoid mutating the list directly
   editAccount.value = { ...account }
+  editFormError.value = ''
   showModal.value = true
+}
+
+function hasBlankRequiredBankAccountFields(account) {
+  if (!account) return true
+
+  return [account.bank_name, account.account_number, account.account_name]
+    .some((value) => !String(value ?? '').trim())
 }
 
 function formatCurrency(amount) {
@@ -433,6 +454,14 @@ function formatCurrency(amount) {
 
 function saveEdit() {
   if (!editAccount.value || !editAccount.value.id) return
+
+  if (hasBlankRequiredBankAccountFields(editAccount.value)) {
+    editFormError.value = blankFormError
+    showErrorToast(blankFormError)
+    return
+  }
+
+  editFormError.value = ''
 
   router.put(route('bank-accounts.update', editAccount.value.id), editAccount.value, {
     preserveScroll: true,
@@ -468,9 +497,18 @@ function closeModal() {
   showModal.value = false
   selectedAccount.value = null
   editAccount.value = null
+  editFormError.value = ''
 }
 
 function submitBankAccount() {
+  if (hasBlankRequiredBankAccountFields(form.value)) {
+    addFormError.value = blankFormError
+    showErrorToast(blankFormError)
+    return
+  }
+
+  addFormError.value = ''
+
   router.post(route('bank-accounts.store'), form.value, {
     preserveScroll: true,
     onSuccess: () => {
