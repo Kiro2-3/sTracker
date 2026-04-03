@@ -230,6 +230,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 import AppSidebar from '@/Components/AppSidebar.vue'
 import Chart from 'chart.js/auto'
 import { showErrorToast } from '@/utils/toast'
+import { SAFETY_MESSAGES } from '@/utils/validation'
 
 const props = defineProps({
   auth: Object,
@@ -247,7 +248,8 @@ const form = ref({
   balance: 0,
 })
 
-const blankFormError = 'Error unable to proceed blank.'
+const blankFormError = SAFETY_MESSAGES.blank
+const negativeBalanceError = SAFETY_MESSAGES.nonNegativeAmount
 const addFormError = ref('')
 const editFormError = ref('')
 
@@ -461,6 +463,12 @@ function saveEdit() {
     return
   }
 
+  if (Number(editAccount.value.balance || 0) < 0) {
+    editFormError.value = negativeBalanceError
+    showErrorToast(negativeBalanceError)
+    return
+  }
+
   editFormError.value = ''
 
   router.put(route('bank-accounts.update', editAccount.value.id), editAccount.value, {
@@ -504,6 +512,12 @@ function submitBankAccount() {
   if (hasBlankRequiredBankAccountFields(form.value)) {
     addFormError.value = blankFormError
     showErrorToast(blankFormError)
+    return
+  }
+
+  if (Number(form.value.balance || 0) < 0) {
+    addFormError.value = negativeBalanceError
+    showErrorToast(negativeBalanceError)
     return
   }
 

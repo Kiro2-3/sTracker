@@ -273,6 +273,8 @@ import AppSidebar from '@/Components/AppSidebar.vue';
 import AddTransaction from '@/Pages/AddTransaction.vue';
 import ThemeToggle from '@/Components/ThemeToggle.vue';
 import { useCurrency } from '@/composables/useCurrency.js';
+import { showErrorToast } from '@/utils/toast';
+import { isBlank, isValidEmail, SAFETY_MESSAGES } from '@/utils/validation';
 
 const props = defineProps({
   auth: Object,
@@ -343,6 +345,23 @@ const passwordForm = useForm({
 
 // Resets password fields after a successful update so they don't linger in the form
 function submitPassword() {
+  passwordForm.clearErrors()
+
+  const clientErrors = {}
+
+  if (isBlank(passwordForm.current_password)) clientErrors.current_password = SAFETY_MESSAGES.blank
+  if (isBlank(passwordForm.password)) clientErrors.password = SAFETY_MESSAGES.blank
+  else if (String(passwordForm.password).length < 8) clientErrors.password = SAFETY_MESSAGES.passwordTooShort
+
+  if (isBlank(passwordForm.password_confirmation)) clientErrors.password_confirmation = SAFETY_MESSAGES.blank
+  else if (passwordForm.password !== passwordForm.password_confirmation) clientErrors.password_confirmation = SAFETY_MESSAGES.passwordMismatch
+
+  if (Object.keys(clientErrors).length > 0) {
+    Object.entries(clientErrors).forEach(([field, message]) => passwordForm.setError(field, message))
+    showErrorToast(Object.values(clientErrors)[0])
+    return
+  }
+
   passwordForm.put(route('password.update'), {
     onSuccess: () => passwordForm.reset(),
   });
@@ -351,6 +370,20 @@ function submitPassword() {
 // PATCH is used because only name/email change; not a full resource replacement
 // Currency is saved to localStorage only — no migration needed
 function submitProfile() {
+  profileForm.clearErrors()
+
+  const clientErrors = {}
+
+  if (isBlank(profileForm.name)) clientErrors.name = SAFETY_MESSAGES.blank
+  if (isBlank(profileForm.email)) clientErrors.email = SAFETY_MESSAGES.blank
+  else if (!isValidEmail(profileForm.email)) clientErrors.email = SAFETY_MESSAGES.invalidEmail
+
+  if (Object.keys(clientErrors).length > 0) {
+    Object.entries(clientErrors).forEach(([field, message]) => profileForm.setError(field, message))
+    showErrorToast(Object.values(clientErrors)[0])
+    return
+  }
+
   setCurrency(localCurrency.value)
   profileForm.patch(route('profile.update'));
 }
@@ -362,6 +395,14 @@ function logout() {
 
 // Requires password confirmation before permanently deleting the account
 function submitDelete() {
+  deleteForm.clearErrors()
+
+  if (isBlank(deleteForm.password)) {
+    deleteForm.setError('password', SAFETY_MESSAGES.blank)
+    showErrorToast(SAFETY_MESSAGES.blank)
+    return
+  }
+
   deleteForm.delete(route('profile.destroy'), {
     onSuccess: () => {
       router.visit(route('login'));

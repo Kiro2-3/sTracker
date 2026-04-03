@@ -330,6 +330,7 @@
                 </button>
               </div>
               <InputError :message="form.errors.email" class="mt-2" />
+              <InputError :message="form.errors.password" class="mt-2" />
             </div>
 
             <!-- Remember + Forgot -->
@@ -445,6 +446,7 @@ import previewUrl from '@/../../public/images/frontview2.png'
 import Checkbox from '@/Components/Checkbox.vue'
 import InputError from '@/Components/InputError.vue'
 import TextInput from '@/Components/TextInput.vue'
+import { isBlank, isValidEmail, SAFETY_MESSAGES } from '@/utils/validation'
 
 const props = defineProps({
   status:           String,   // success message shown after e.g. a password-reset email is sent
@@ -475,6 +477,21 @@ function closeLoginModal() {
 // Clears the password field after every attempt so it never lingers in form state
 // Shows an error toast for 4 seconds when the server returns a credential error
 function submit() {
+  form.clearErrors()
+  showErrorToast.value = false
+
+  const clientErrors = {}
+
+  if (isBlank(form.email)) clientErrors.email = SAFETY_MESSAGES.blank
+  else if (!isValidEmail(form.email)) clientErrors.email = SAFETY_MESSAGES.invalidEmail
+
+  if (isBlank(form.password)) clientErrors.password = SAFETY_MESSAGES.blank
+
+  if (Object.keys(clientErrors).length > 0) {
+    Object.entries(clientErrors).forEach(([field, message]) => form.setError(field, message))
+    return
+  }
+
   form.post('/login', {
     onFinish: () => form.reset('password'),
     onError: () => {

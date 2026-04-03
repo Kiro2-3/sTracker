@@ -178,6 +178,7 @@ import { router } from '@inertiajs/vue3'
 import InputError from '@/Components/InputError.vue'
 import Modal from '@/Components/Modal.vue'
 import { showErrorToast } from '@/utils/toast'
+import { SAFETY_MESSAGES } from '@/utils/validation'
 
 const props = defineProps({
   // categories: list of expense categories passed from the server
@@ -216,7 +217,7 @@ const processing        = ref(false)
 const showCategoryModal = ref(false)
 const newCategory       = ref('')
 const categoryError     = ref('')
-const blankFormError    = 'Error unable to proceed blank.'
+const blankFormError    = SAFETY_MESSAGES.blank
 
 // Keep the selected category valid when the available options change
 watch(categories, () => {
@@ -297,14 +298,15 @@ function submit() {
   const amount = Number(form.value.amount)
 
   if (!form.value.description?.trim()) blankErrors.description = blankFormError
-  if (form.value.amount === '' || form.value.amount === null || Number.isNaN(amount) || amount <= 0) blankErrors.amount = blankFormError
+  if (form.value.amount === '' || form.value.amount === null || Number.isNaN(amount)) blankErrors.amount = blankFormError
+  else if (amount <= 0) blankErrors.amount = SAFETY_MESSAGES.positiveAmount
   if (!form.value.category?.trim()) blankErrors.category = blankFormError
   if (!form.value.entry_date) blankErrors.entry_date = blankFormError
 
   if (Object.keys(blankErrors).length > 0) {
     errors.value = blankErrors
     processing.value = false
-    showErrorToast(blankFormError)
+    showErrorToast(Object.values(blankErrors)[0])
     return
   }
 

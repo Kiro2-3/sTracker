@@ -123,6 +123,7 @@ import { router } from '@inertiajs/vue3'
 import InputError from '@/Components/InputError.vue'
 import Modal from '@/Components/Modal.vue'
 import { showErrorToast } from '@/utils/toast'
+import { SAFETY_MESSAGES } from '@/utils/validation'
 
 /**
  * Props:
@@ -151,7 +152,7 @@ const form = ref({
 
 const errors     = ref({})  // Holds server-side validation errors keyed by field name
 const processing = ref(false)  // Prevents duplicate submissions while the request is in-flight
-const blankFormError = 'Error unable to proceed blank.'
+const blankFormError = SAFETY_MESSAGES.blank
 
 /**
  * Submits the edited transaction via a PUT request.
@@ -166,14 +167,15 @@ function submit() {
   const amount = Number(form.value.amount)
 
   if (!form.value.description?.trim()) blankErrors.description = blankFormError
-  if (form.value.amount === '' || form.value.amount === null || Number.isNaN(amount) || amount <= 0) blankErrors.amount = blankFormError
+  if (form.value.amount === '' || form.value.amount === null || Number.isNaN(amount)) blankErrors.amount = blankFormError
+  else if (amount <= 0) blankErrors.amount = SAFETY_MESSAGES.positiveAmount
   if (!form.value.category?.trim()) blankErrors.category = blankFormError
   if (!form.value.entry_date) blankErrors.entry_date = blankFormError
 
   if (Object.keys(blankErrors).length > 0) {
     errors.value = blankErrors
     processing.value = false
-    showErrorToast(blankFormError)
+    showErrorToast(Object.values(blankErrors)[0])
     return
   }
 

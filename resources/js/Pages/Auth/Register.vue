@@ -179,6 +179,7 @@ import logoUrl from '@/../../public/images/str.png'
 import previewUrl from '@/../../public/images/frontview2.png'
 import InputError from '@/Components/InputError.vue'
 import TextInput from '@/Components/TextInput.vue'
+import { isBlank, isValidEmail, SAFETY_MESSAGES } from '@/utils/validation'
 
 // Modal starts open so the registration form is immediately visible on page load
 const showModal = ref(true)
@@ -193,6 +194,25 @@ const form = useForm({
 
 // Clears both password fields after every attempt so they never linger in form state
 function submit() {
+  form.clearErrors()
+
+  const clientErrors = {}
+
+  if (isBlank(form.name)) clientErrors.name = SAFETY_MESSAGES.blank
+  if (isBlank(form.email)) clientErrors.email = SAFETY_MESSAGES.blank
+  else if (!isValidEmail(form.email)) clientErrors.email = SAFETY_MESSAGES.invalidEmail
+
+  if (isBlank(form.password)) clientErrors.password = SAFETY_MESSAGES.blank
+  else if (String(form.password).length < 8) clientErrors.password = SAFETY_MESSAGES.passwordTooShort
+
+  if (isBlank(form.password_confirmation)) clientErrors.password_confirmation = SAFETY_MESSAGES.blank
+  else if (form.password !== form.password_confirmation) clientErrors.password_confirmation = SAFETY_MESSAGES.passwordMismatch
+
+  if (Object.keys(clientErrors).length > 0) {
+    Object.entries(clientErrors).forEach(([field, message]) => form.setError(field, message))
+    return
+  }
+
   form.post('/register', {
     onFinish: () => form.reset('password', 'password_confirmation'),
   })
