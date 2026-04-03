@@ -177,6 +177,7 @@ import axios from 'axios'
 import { router } from '@inertiajs/vue3'
 import InputError from '@/Components/InputError.vue'
 import Modal from '@/Components/Modal.vue'
+import { showErrorToast } from '@/utils/toast'
 
 const props = defineProps({
   // categories: list of expense categories passed from the server
@@ -215,6 +216,7 @@ const processing        = ref(false)
 const showCategoryModal = ref(false)
 const newCategory       = ref('')
 const categoryError     = ref('')
+const blankFormError    = 'Error unable to proceed blank.'
 
 // Keep the selected category valid when the available options change
 watch(categories, () => {
@@ -242,7 +244,8 @@ function saveCategory() {
   const name = newCategory.value.trim()
 
   if (!name) {
-    categoryError.value = 'Category name is required.'
+    categoryError.value = blankFormError
+    showErrorToast(blankFormError)
     return
   }
 
@@ -289,6 +292,23 @@ function deleteCategory(name) {
  */
 function submit() {
   processing.value = true
+
+  const blankErrors = {}
+  const amount = Number(form.value.amount)
+
+  if (!form.value.description?.trim()) blankErrors.description = blankFormError
+  if (form.value.amount === '' || form.value.amount === null || Number.isNaN(amount) || amount <= 0) blankErrors.amount = blankFormError
+  if (!form.value.category?.trim()) blankErrors.category = blankFormError
+  if (!form.value.entry_date) blankErrors.entry_date = blankFormError
+
+  if (Object.keys(blankErrors).length > 0) {
+    errors.value = blankErrors
+    processing.value = false
+    showErrorToast(blankFormError)
+    return
+  }
+
+  errors.value = {}
 
   router.post(route('transactions.store'), form.value, {
     preserveScroll: true,

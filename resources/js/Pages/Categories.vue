@@ -290,6 +290,7 @@ import { Head, router } from '@inertiajs/vue3'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 import AppSidebar from '@/Components/AppSidebar.vue'
 import AddTransaction from '@/Pages/AddTransaction.vue'
+import { showErrorToast } from '@/utils/toast'
 
 const props = defineProps({
   auth:       { type: Object, required: true },
@@ -322,6 +323,7 @@ const filters = ref({
   sort_by:  'name',
   sort_dir: 'asc',
 })
+const blankFormError = 'Error unable to proceed blank.'
 
 watch(
   () => props.filters,
@@ -376,7 +378,8 @@ function saveCategory() {
   const name = newCategoryName.value.trim()
 
   if (!name) {
-    addError.value = 'Category name is required.'
+    addError.value = blankFormError
+    showErrorToast(blankFormError)
     return
   }
 
@@ -429,7 +432,8 @@ function saveEdit() {
   const name = editCategoryName.value.trim()
 
   if (!name) {
-    editError.value = 'Category name is required.'
+    editError.value = blankFormError
+    showErrorToast(blankFormError)
     return
   }
 
