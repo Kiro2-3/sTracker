@@ -366,9 +366,6 @@ class TransactionController extends Controller
 
     /**
      * Apply chart-specific filters to a transaction query.
-     *
-     * @param Builder $query the base query to filter
-     * @param array<string, mixed> $filters key-value pairs of chart filter values
      */
     private function applyChartFilters(Builder $query, array $filters): Builder
     {
