@@ -126,47 +126,193 @@
             </div>
           </div>
 
-          <!-- Popup Modal for Bank Account Details (Editable) -->
+          <!-- Account Detail / Add Transaction / Edit Modal -->
           <transition name="fade">
             <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40" @click.self="closeModal">
-              <div class="bg-base-100 rounded-lg shadow-2xl p-8 w-full max-w-md relative animate-popup">
-                <button @click="closeModal" class="absolute top-2 right-2 text-base-content/60 hover:text-base-content text-xl">&times;</button>
-                <h2 class="text-2xl font-bold mb-4">Edit Bank Account</h2>
-                <form @submit.prevent="saveEdit" v-if="editAccount">
-                  <p v-if="editFormError" class="mb-3 rounded-lg border border-error/30 bg-error/10 px-3 py-2 text-sm text-error">
-                    {{ editFormError }}
-                  </p>
-                  <div class="mb-2">
-                    <label class="font-semibold">Bank Name:</label>
-                    <input v-model="editAccount.bank_name" class="input input-bordered w-full" required />
+              <div class="bg-base-100 rounded-xl shadow-2xl w-full max-w-lg relative animate-popup flex flex-col max-h-[90vh]">
+                <button @click="closeModal" class="absolute top-3 right-3 text-base-content/60 hover:text-base-content text-xl z-10">&times;</button>
+
+                <!-- ── DETAIL VIEW ── -->
+                <template v-if="modalView === 'detail'">
+                  <!-- Header -->
+                  <div class="px-6 pt-6 pb-4 border-b border-base-200">
+                    <div class="flex items-start justify-between pr-6">
+                      <div>
+                        <h2 class="text-xl font-bold">{{ selectedAccount?.bank_name }}</h2>
+                        <div class="text-sm text-base-content/60 mt-0.5">{{ selectedAccount?.account_name }} &bull; {{ selectedAccount?.account_number }}</div>
+                        <div v-if="selectedAccount?.branch" class="text-xs text-base-content/50 mt-0.5">{{ selectedAccount.branch }}</div>
+                      </div>
+                      <div class="text-right">
+                        <div class="text-xs text-base-content/50 mb-0.5">Balance</div>
+                        <div class="text-2xl font-bold text-green-600">{{ formatCurrency(selectedAccount?.balance) }}</div>
+                      </div>
+                    </div>
+                    <!-- Action buttons -->
+                    <div class="flex gap-2 mt-4">
+                      <button @click="modalView = 'addTransaction'" class="btn btn-primary btn-sm text-white flex-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                        </svg>
+                        Add Transaction
+                      </button>
+                      <button @click="modalView = 'editAccount'" class="btn btn-ghost btn-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828a2 2 0 01-1.414.586H9v-2a2 2 0 01.586-1.414z" />
+                        </svg>
+                        Edit
+                      </button>
+                      <button @click="confirmDelete" class="btn btn-error btn-sm text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
                   </div>
-                  <div class="mb-2">
-                    <label class="font-semibold">Account Number:</label>
-                    <input v-model="editAccount.account_number" class="input input-bordered w-full" required />
+
+                  <!-- Transaction history -->
+                  <div class="px-6 py-4 overflow-y-auto flex-1">
+                    <h3 class="text-sm font-semibold text-base-content/70 uppercase tracking-wide mb-3">Transaction History</h3>
+                    <template v-if="accountHistory.length">
+                      <ul class="divide-y divide-base-200">
+                        <li v-for="tx in accountHistory" :key="tx.id" class="py-2.5 flex items-center justify-between gap-2">
+                          <div class="flex-1 min-w-0">
+                            <div class="font-medium text-sm truncate">{{ tx.description }}</div>
+                            <div class="text-xs text-base-content/50">{{ tx.category }} &bull; {{ formatDate(tx.entry_date) }}</div>
+                          </div>
+                          <span :class="tx.type === 'income' ? 'text-green-600' : 'text-red-500'" class="font-semibold text-sm whitespace-nowrap">
+                            {{ tx.type === 'income' ? '+' : '-' }}{{ formatCurrency(tx.amount) }}
+                          </span>
+                        </li>
+                      </ul>
+                    </template>
+                    <div v-else class="text-sm text-base-content/50 text-center py-8">No transactions linked to this account yet.</div>
                   </div>
-                  <div class="mb-2">
-                    <label class="font-semibold">Account Name:</label>
-                    <input v-model="editAccount.account_name" class="input input-bordered w-full" required />
+                </template>
+
+                <!-- ── ADD TRANSACTION VIEW ── -->
+                <template v-else-if="modalView === 'addTransaction'">
+                  <div class="px-6 pt-6 pb-4 border-b border-base-200 flex items-center gap-3 pr-10">
+                    <button @click="modalView = 'detail'" class="btn btn-ghost btn-sm btn-circle">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+                    <div>
+                      <h2 class="text-xl font-bold">Add Transaction</h2>
+                      <div class="text-xs text-base-content/50">{{ selectedAccount?.bank_name }} &bull; {{ formatCurrency(selectedAccount?.balance) }}</div>
+                    </div>
                   </div>
-                  <div class="mb-2">
-                    <label class="font-semibold">Branch:</label>
-                    <input v-model="editAccount.branch" class="input input-bordered w-full" />
+                  <div class="px-6 py-4 overflow-y-auto flex-1">
+                    <p v-if="txFormError" class="mb-3 rounded-lg border border-error/30 bg-error/10 px-3 py-2 text-sm text-error">{{ txFormError }}</p>
+                    <form @submit.prevent="submitTransaction" class="flex flex-col gap-4">
+                      <!-- Type toggle -->
+                      <div class="form-control">
+                        <label class="label pb-1"><span class="label-text font-semibold">Type</span></label>
+                        <div class="flex rounded-lg overflow-hidden border border-base-300">
+                          <button type="button"
+                            class="flex-1 py-2 text-sm font-medium transition-colors"
+                            :class="txForm.type === 'expense' ? 'bg-red-500 text-white' : 'bg-base-100 text-base-content/60 hover:bg-base-200'"
+                            @click="txForm.type = 'expense'">
+                            Expense
+                          </button>
+                          <button type="button"
+                            class="flex-1 py-2 text-sm font-medium transition-colors"
+                            :class="txForm.type === 'income' ? 'bg-green-500 text-white' : 'bg-base-100 text-base-content/60 hover:bg-base-200'"
+                            @click="txForm.type = 'income'">
+                            Income
+                          </button>
+                        </div>
+                      </div>
+
+                      <div class="grid grid-cols-2 gap-3">
+                        <div class="form-control">
+                          <label class="label pb-1"><span class="label-text font-semibold">Amount</span></label>
+                          <input v-model.number="txForm.amount" type="number" step="0.01" min="0.01" class="input input-bordered w-full" placeholder="0.00" required />
+                        </div>
+                        <div class="form-control">
+                          <label class="label pb-1"><span class="label-text font-semibold">Date</span></label>
+                          <input v-model="txForm.entry_date" type="date" class="input input-bordered w-full" required />
+                        </div>
+                      </div>
+
+                      <div class="form-control">
+                        <label class="label pb-1"><span class="label-text font-semibold">Description</span></label>
+                        <input v-model="txForm.description" type="text" class="input input-bordered w-full" placeholder="e.g. Grocery run" required maxlength="255" />
+                      </div>
+
+                      <div class="form-control">
+                        <label class="label pb-1"><span class="label-text font-semibold">Category</span></label>
+                        <input
+                          v-model="txForm.category"
+                          type="text"
+                          class="input input-bordered w-full"
+                          placeholder="e.g. Food"
+                          list="tx-category-list"
+                          required
+                        />
+                        <datalist id="tx-category-list">
+                          <option v-for="cat in props.categories" :key="cat" :value="cat" />
+                        </datalist>
+                      </div>
+
+                      <div class="flex gap-2 mt-2">
+                        <button type="button" @click="modalView = 'detail'" class="btn btn-ghost flex-1">Cancel</button>
+                        <button type="submit" class="btn btn-primary text-white flex-1" :disabled="txProcessing">
+                          <span v-if="txProcessing" class="loading loading-spinner loading-sm"></span>
+                          {{ txProcessing ? 'Saving...' : 'Save Transaction' }}
+                        </button>
+                      </div>
+                    </form>
                   </div>
-                  <div class="mb-2">
-                    <label class="font-semibold">Notes:</label>
-                    <textarea v-model="editAccount.notes" class="textarea textarea-bordered w-full"></textarea>
+                </template>
+
+                <!-- ── EDIT ACCOUNT VIEW ── -->
+                <template v-else-if="modalView === 'editAccount'">
+                  <div class="px-6 pt-6 pb-4 border-b border-base-200 flex items-center gap-3 pr-10">
+                    <button @click="modalView = 'detail'" class="btn btn-ghost btn-sm btn-circle">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+                    <h2 class="text-xl font-bold">Edit Bank Account</h2>
                   </div>
-                  <div class="mb-2">
-                    <label class="font-semibold">Current Saving:</label>
-                    <input v-model.number="editAccount.balance" type="number" step="0.01" class="input input-bordered w-full" />
+                  <div class="px-6 py-4 overflow-y-auto flex-1">
+                    <form @submit.prevent="saveEdit" v-if="editAccount">
+                      <p v-if="editFormError" class="mb-3 rounded-lg border border-error/30 bg-error/10 px-3 py-2 text-sm text-error">{{ editFormError }}</p>
+                      <div class="flex flex-col gap-3">
+                        <div class="form-control">
+                          <label class="label pb-1"><span class="label-text font-semibold">Bank Name</span></label>
+                          <input v-model="editAccount.bank_name" class="input input-bordered w-full" required />
+                        </div>
+                        <div class="form-control">
+                          <label class="label pb-1"><span class="label-text font-semibold">Account Number</span></label>
+                          <input v-model="editAccount.account_number" class="input input-bordered w-full" required />
+                        </div>
+                        <div class="form-control">
+                          <label class="label pb-1"><span class="label-text font-semibold">Account Name</span></label>
+                          <input v-model="editAccount.account_name" class="input input-bordered w-full" required />
+                        </div>
+                        <div class="form-control">
+                          <label class="label pb-1"><span class="label-text font-semibold">Branch</span></label>
+                          <input v-model="editAccount.branch" class="input input-bordered w-full" />
+                        </div>
+                        <div class="form-control">
+                          <label class="label pb-1"><span class="label-text font-semibold">Notes</span></label>
+                          <textarea v-model="editAccount.notes" class="textarea textarea-bordered w-full"></textarea>
+                        </div>
+                        <div class="form-control">
+                          <label class="label pb-1"><span class="label-text font-semibold">Current Saving</span></label>
+                          <input v-model.number="editAccount.balance" type="number" step="0.01" class="input input-bordered w-full" />
+                        </div>
+                      </div>
+                      <div class="mt-6 flex justify-end gap-2">
+                        <button type="button" @click="modalView = 'detail'" class="btn btn-ghost">Cancel</button>
+                        <button type="submit" class="btn btn-primary text-white">Save</button>
+                      </div>
+                    </form>
                   </div>
-                  <div class="mt-6 flex justify-end gap-2">
-                    <button type="button" @click="confirmDelete" class="btn btn-error text-white">Delete</button>
-                    <div class="flex-1"></div>
-                    <button type="button" @click="closeModal" class="btn btn-ghost">Cancel</button>
-                    <button type="submit" class="btn btn-primary text-white">Save</button>
-                  </div>
-                </form>
+                </template>
+
               </div>
             </div>
           </transition>
@@ -236,6 +382,8 @@ const props = defineProps({
   auth: Object,
   bankAccounts: Object,
   totalBalance: Number,
+  categories: Array,
+  accountTransactions: Object,
   // upcomingRecurring removed
 })
 

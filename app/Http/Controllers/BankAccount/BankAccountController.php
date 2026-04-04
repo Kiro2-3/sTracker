@@ -61,6 +61,12 @@ class BankAccountController
             'bankAccounts' => $bankAccounts,
             'totalBalance' => $totalBalance,
             'categories' => $categories,
+            'accountTransactions' => $user->transactions()
+                ->whereNotNull('bank_account_id')
+                ->orderBy('entry_date', 'desc')
+                ->orderBy('id', 'desc')
+                ->get(['id', 'description', 'amount', 'type', 'category', 'entry_date', 'bank_account_id'])
+                ->groupBy('bank_account_id'),
         ]);
     }
 
