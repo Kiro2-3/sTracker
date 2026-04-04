@@ -25,6 +25,18 @@ jobs:
           extensions: mbstring, sqlite3, pdo_sqlite, xml, bcmath
           coverage: none
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Build assets
+        run: npm run build
+
       - name: Cache Composer dependencies
         uses: actions/cache@v4
         with:
