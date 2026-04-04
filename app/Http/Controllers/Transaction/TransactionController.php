@@ -208,7 +208,7 @@ class TransactionController extends Controller
         $transaction = $user->transactions()->create($validated);
 
         // When the transaction is linked to a bank account, adjust the account balance.
-        if (!empty($validated['bank_account_id'])) {
+        if (! empty($validated['bank_account_id'])) {
             $bankAccount = $user->bankAccounts()->find($validated['bank_account_id']);
             if ($bankAccount) {
                 $delta = (float) $validated['amount'];
@@ -225,7 +225,7 @@ class TransactionController extends Controller
             'name' => $validated['category'],
         ]);
 
-        $redirectBack = !empty($validated['bank_account_id'])
+        $redirectBack = ! empty($validated['bank_account_id'])
             ? route('bank-accounts.index')
             : route('dashboard');
 
@@ -371,19 +371,19 @@ class TransactionController extends Controller
      */
     private function applyChartFilters(Builder $query, array $filters): Builder
     {
-        if (!empty($filters['category'])) {
+        if (! empty($filters['category'])) {
             $query->where('category', $filters['category']);
         }
 
-        if (!empty($filters['type'])) {
+        if (! empty($filters['type'])) {
             $query->where('type', $filters['type']);
         }
 
-        if (!empty($filters['date_from'])) {
+        if (! empty($filters['date_from'])) {
             $query->where('entry_date', '>=', $filters['date_from']);
         }
 
-        if (!empty($filters['date_to'])) {
+        if (! empty($filters['date_to'])) {
             $query->where('entry_date', '<=', $filters['date_to']);
         }
 

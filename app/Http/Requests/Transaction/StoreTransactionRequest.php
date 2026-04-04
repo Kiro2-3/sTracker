@@ -22,11 +22,11 @@ class StoreTransactionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'description'     => ['required', 'string', 'max:255'],
-            'amount'          => ['required', 'numeric', 'min:0'],
-            'type'            => ['required', 'in:income,expense'],
-            'category'        => ['required', 'string'],
-            'entry_date'      => ['required', 'date'],
+            'description' => ['required', 'string', 'max:255'],
+            'amount' => ['required', 'numeric', 'min:0'],
+            'type' => ['required', 'in:income,expense'],
+            'category' => ['required', 'string'],
+            'entry_date' => ['required', 'date'],
             'bank_account_id' => ['nullable', 'integer', 'exists:bank_accounts,id'],
         ];
     }
