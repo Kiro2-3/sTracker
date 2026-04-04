@@ -57,10 +57,10 @@ class BankAccountController
         }
 
         return Inertia::render('BankAccounts', [
-            'auth'         => ['user' => $user],
+            'auth' => ['user' => $user],
             'bankAccounts' => $bankAccounts,
             'totalBalance' => $totalBalance,
-            'categories'   => $categories,
+            'categories' => $categories,
         ]);
     }
 
