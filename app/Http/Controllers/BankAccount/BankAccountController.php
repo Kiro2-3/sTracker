@@ -41,6 +41,7 @@ class BankAccountController
      */
     public function index(Request $request): Response
     {
+        /** @var \App\Models\User $user */
         $user = Auth::user();
         // paginate bank accounts for the user (3 per page)
         $bankAccounts = $user->bankAccounts()->latest()->paginate(3);
