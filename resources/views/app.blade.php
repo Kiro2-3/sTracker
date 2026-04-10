@@ -4,7 +4,10 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title inertia>{{ config('app.name', 'Laravel') }}</title>
+<title inertia>{{ config('app.name', 'Laravel') }}</title>
+
+        <!-- Confetti CDN -->
+        <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
         <!-- Favicon -->
         <link rel="icon" type="image/png" href="/images/str.png" />
