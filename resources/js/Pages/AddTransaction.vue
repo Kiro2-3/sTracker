@@ -106,7 +106,7 @@
       <!-- Actions -->
       <div class="modal-action mt-2">
         <button type="button" class="btn btn-ghost" @click="closeModal">Cancel</button>
-        <button type="submit" class="btn btn-primary" :disabled="processing">
+<button type="submit" class="btn btn-primary !text-amber-400" :disabled="processing">
           <span v-if="processing" class="loading loading-spinner loading-sm"></span>
           Save Transaction
         </button>
