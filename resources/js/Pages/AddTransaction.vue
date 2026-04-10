@@ -177,7 +177,7 @@ import axios from 'axios'
 import { router } from '@inertiajs/vue3'
 import InputError from '@/Components/InputError.vue'
 import Modal from '@/Components/Modal.vue'
-import { showErrorToast } from '@/utils/toast'
+import { showErrorToast, showSuccessToast } from '@/utils/toast'
 import { SAFETY_MESSAGES } from '@/utils/validation'
 
 const props = defineProps({
@@ -315,6 +315,18 @@ function submit() {
   router.post(route('transactions.store'), form.value, {
     preserveScroll: true,
     onSuccess: () => {
+      showSuccessToast('Transaction added successfully! 🎉')
+      
+      // Confetti celebration
+      if (typeof confetti !== 'undefined') {
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ['#bb86fc', '#f59e0b', '#10b981', '#ef4444', '#3b82f6']
+        })
+      }
+      
       form.value = {
         description: '',
         amount:      '',
